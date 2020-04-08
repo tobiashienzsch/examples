@@ -1,0 +1,4 @@
+# BUILD
+*.o
+*.exe
+proc-info
