@@ -1,6 +1,8 @@
 #include <CL/cl.hpp>
 
+#include <algorithm>
 #include <iostream>
+#include <vector>
 
 int main(int, char **) {
     auto all_platforms = std::vector<cl::Platform>{};
@@ -27,18 +29,8 @@ int main(int, char **) {
     std::cout << "Using version: " << device.getInfo<CL_DEVICE_VERSION>() << "\n";
 
     auto source = std::string{R"(
-        __kernel void HelloWorld(__global char* data) {
-            data[0] = 'H';
-            data[1] = 'e';
-            data[2] = 'l';
-            data[3] = 'l';
-            data[4] = 'o';
-            data[5] = ' ';
-            data[6] = 'W';
-            data[7] = 'o';
-            data[8] = 'r';
-            data[9] = 'l';
-            data[10] = 'd';
+        __kernel void ProcessArray(__global float* data, __global float* outData) {
+            outData[get_global_id(0)] = data[get_global_id(0)] * 0.25;
         }
     )"};
 
@@ -46,21 +38,36 @@ int main(int, char **) {
     auto context = cl::Context{device};
     auto program = cl::Program{context, sources};
 
-    auto err = program.build();
+    auto err = program.build("-cl-std=CL1.2");
     if (err != CL_SUCCESS) {
         std::cerr << "Error: Building Program Code: " << err << "\n";
     }
 
-    char buf[16] = {};
-    auto memBuffer = cl::Buffer{context, CL_MEM_WRITE_ONLY | CL_MEM_HOST_READ_ONLY, sizeof(buf)};
-    auto kernel = cl::Kernel{program, "HelloWorld", &err};
-    kernel.setArg(0, memBuffer);
+    auto buffer = std::vector<float>{};
+    buffer.resize(128, 0.5f);
+    std::cout << "Pre Buffer:\n";
+    std::for_each(std::begin(buffer), std::end(buffer), [](auto const sample) {
+      std::cout << " " << sample;
+    });
+    std::cout << "\n";
+
+    auto inputBuffer = cl::Buffer{context, CL_MEM_READ_ONLY | CL_MEM_HOST_NO_ACCESS | CL_MEM_COPY_HOST_PTR, sizeof(float) * buffer.size(), buffer.data()};
+    auto outputBuffer = cl::Buffer{context, CL_MEM_WRITE_ONLY | CL_MEM_HOST_READ_ONLY, sizeof(float) * buffer.size(), nullptr};
+
+    auto kernel = cl::Kernel{program, "ProcessArray", &err};
+    kernel.setArg(0, inputBuffer);
+    kernel.setArg(1, outputBuffer);
 
     auto queue = cl::CommandQueue{context, device};
+    queue.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange{buffer.size()});
     queue.enqueueTask(kernel);
-    queue.enqueueReadBuffer(memBuffer, CL_TRUE, 0, sizeof(buf), buf);
+    queue.enqueueReadBuffer(outputBuffer, CL_TRUE, 0, sizeof(float) * buffer.size(), buffer.data());
 
-    std::cout << "Buffer: " << buf << "\n";
+    std::cout << "Post Buffer:\n";
+    std::for_each(std::begin(buffer), std::end(buffer), [](auto const sample) {
+        std::cout << " " << sample;
+    });
+    std::cout << "\n";
 
     return EXIT_SUCCESS;
 }
