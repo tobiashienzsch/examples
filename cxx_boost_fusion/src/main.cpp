@@ -3,12 +3,6 @@
 #include <iostream>
 #include <type_traits>
 #include <vector>
-// #include <boost/fusion/sequence.hpp>
-// #include <boost/fusion/tuple.hpp>
-// #include <boost/fusion/view.hpp>
-// #include <boost/mpl/arg.hpp>
-// #include <boost/mpl/int.hpp>
-// #include <boost/type_traits.hpp>
 
 using namespace boost;
 
