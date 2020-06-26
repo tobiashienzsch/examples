@@ -4,28 +4,12 @@
 #include <type_traits>
 #include <vector>
 
-using namespace boost;
+#include "network.hpp"
+
+namespace asio = boost::asio;
+namespace fusion = boost::fusion;
 
 namespace th {
-enum class MessageVersion : std::uint8_t {
-  Unknown = 0,
-  V1 = 1,
-};
-auto operator<<(std::ostream &out, MessageVersion type) -> std::ostream & {
-  switch (type) {
-  case th::MessageVersion::Unknown: {
-    out << "Unknown";
-    break;
-  }
-  case th::MessageVersion::V1: {
-    out << "V1";
-    break;
-  }
-  default:
-    break;
-  }
-  return out;
-}
 
 enum class MessageType : std::uint16_t {
   Unknown = 0,
@@ -52,9 +36,10 @@ auto operator<<(std::ostream &out, MessageType type) -> std::ostream & {
 BOOST_FUSION_DEFINE_STRUCT(
     (th), MessageHeader,
     (th::MessageType, type)
-    (th::MessageVersion, version)
+    (std::uint16_t, version)
+    (std::uint32_t, sessionID)
+    (double, value)
     (std::string, name)
-    (double, f)
 )
 // clang-format on
 
@@ -81,11 +66,6 @@ public:
     (*this)(length);
     val = std::string(reinterpret_cast<char const *>(buffer_), length);
     buffer_ = buffer_ + length;
-  }
-
-  auto operator()(th::MessageVersion &val) const -> void {
-    val = *reinterpret_cast<th::MessageVersion const *>(buffer_);
-    buffer_ = buffer_ + sizeof(th::MessageVersion);
   }
 
   auto operator()(th::MessageType &val) const -> void {
@@ -120,12 +100,8 @@ private:
 };
 
 struct Printer {
-  void operator()(bool val) const { std::puts(val ? "true" : "false"); }
-  void operator()(int val) const { std::printf("%d\n", val); }
-  void operator()(float val) const { std::printf("%f\n", val); }
-  void operator()(double val) const { std::printf("%f\n", val); }
   template <typename T> void operator()(T val) const {
-    std::cout << val << '\n';
+    std::cout << "val: " << std::boolalpha << val << '\n';
   }
 };
 
@@ -138,7 +114,7 @@ template <typename T> T read(std::vector<char> const &data) {
 
 template <typename T> auto write(T &data) {
   auto result = std::vector<char>{0};
-  result.reserve(4096);
+  result.reserve(1024);
   auto writer = Writer{result.data()};
   fusion::for_each(data, writer);
   return result;
@@ -151,8 +127,8 @@ template <typename T> auto print(T const &data) {
 
 int main() {
   // Create struct & print elements
-  th::MessageHeader header = {th::MessageType::Parameter,
-                              th::MessageVersion::V1, "gain", 1.43};
+  th::MessageHeader header = {th::MessageType::Parameter, 12, 143, 1.43,
+                              "gain"};
   print(header);
 
   // Serialize & Deserialize & Print struct

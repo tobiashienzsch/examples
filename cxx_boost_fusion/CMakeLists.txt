@@ -13,7 +13,7 @@ endif()
 list (APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../cmake")
 include(CompilerWarnings)
 
-find_package(Boost 1.71 REQUIRED)
+find_package(Boost 1.71 COMPONENTS system REQUIRED)
 
 add_executable(${PROJECT_NAME} src/main.cpp)
-target_link_libraries(${PROJECT_NAME} PRIVATE Boost::boost th::CompilerWarnings)
+target_link_libraries(${PROJECT_NAME} PRIVATE Boost::boost Boost::system th::CompilerWarnings)
