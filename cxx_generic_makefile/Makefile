@@ -10,8 +10,8 @@ OBJDIR	= obj/
 SRCDIR	= src/
 
 # final executable name
-_BIN	= a.out
-BIN		= $(addprefix $(BINDIR), $(_BIN))
+_BIN    = app
+BIN	    = $(addprefix $(BINDIR), $(_BIN))
 
 # files; here all object files will be stored in $(OBJDIR), with the
 # same base names as corresponding c files from SRCDIR
@@ -20,8 +20,16 @@ _OBJS	= $(patsubst src/%.cpp, %.o, $(SRC))
 OBJS	= $(addprefix $(OBJDIR), $(_OBJS))
 
 # compilation flags
-CXXFLAGS 	=-std=c++14 -O0 -g3 -Wall -Wextra -Wpedantic -I$(INCLDIR) -I$(SRCDIR)
-OFLAGS 		=
+CXXFLAGS 	= -std=c++17 -march=native -Werror -Wall -Wextra -Wpedantic -I$(INCLDIR) -I$(SRCDIR)
+LDFLAGS     =
+
+ifdef DEBUG
+	CXXFLAGS 	+= -Og -g3 -ggdb
+else
+	CXXFLAGS 	+= -O3 -flto
+	LDFLAGS     += -flto
+endif 
+
 
 
 # compile binary and object files
@@ -29,7 +37,7 @@ OFLAGS 		=
 all: $(BIN)
 
 $(BIN): $(BINDIR) $(OBJS)
-	$(CXX) $(OFLAGS) $(OBJS) -o $(BIN)
+	$(CXX) $(LDFLAGS) $(OBJS) -o $(BIN)
 
 $(BINDIR):
 	mkdir -p $(BINDIR)
@@ -48,7 +56,7 @@ clean:
 # check code quality
 .PHONY: cppcheck memcheck
 cppcheck:
-	cppcheck --enable=all --language=c++ --std=c++14 --inconclusive \
+	cppcheck --enable=all --language=c++ --std=c++17 --inconclusive \
 	--suppress=missingInclude $(SRC) -i $(INCLDIR)
 
 memcheck: all
