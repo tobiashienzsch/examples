@@ -69,6 +69,9 @@
         "__tree": "cpp",
         "__tuple": "cpp",
         "locale": "cpp",
-        "valarray": "cpp"
+        "valarray": "cpp",
+        "*.ipp": "cpp",
+        "condition_variable": "cpp",
+        "__mutex_base": "cpp"
     }
 }
