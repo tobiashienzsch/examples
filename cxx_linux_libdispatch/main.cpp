@@ -7,7 +7,7 @@
 
 int main()
 {
-    auto task = [](int i) -> int {
+    auto task = [&](int i) -> int {
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
         std::printf("%d\n", i);
         return i;
@@ -15,9 +15,9 @@ int main()
 
     auto futures = std::vector<std::future<int>> {};
 
-    for (auto i = 0; i < 1000; ++i)
+    for (auto i = 0; i < 1'000; ++i)
     {
-        futures.push_back(mc::Async(mc::AsyncQueue::Default, task, i));
+        futures.push_back(mc::Async(mc::QueuePriority::Default, task, i));
     }
 
     for (auto& f : futures)

@@ -11,7 +11,10 @@
 namespace mc
 {
 
-enum class AsyncQueue
+/**
+ * @brief Tag enum for selecting the async queue priority when dispatching tasks with mc::Async.
+ */
+enum class QueuePriority
 {
     Default,
     Low,
@@ -42,33 +45,35 @@ auto AsyncImpl(dispatch_queue_t queue, Function&& f, Args&&... args)
     return result;
 }
 
-auto SelectDispatchQueue(AsyncQueue queueType) -> dispatch_queue_t
+auto SelectDispatchQueue(QueuePriority queueType) -> dispatch_queue_t
 {
     switch (queueType)
     {
-        case AsyncQueue::Default:
-        {
-            return dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
-        }
-        case AsyncQueue::Low:
+        case QueuePriority::Low:
         {
             return dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0);
         }
-        case AsyncQueue::High:
+        case QueuePriority::High:
         {
             return dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0);
         }
-        case AsyncQueue::Message:
+        case QueuePriority::Message:
         {
             return dispatch_get_main_queue();
         }
+        default:
+        {
+            break;
+        }
     }
+
+    return dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
 }
 
 }  // namespace detail
 
 template<typename Function, typename... Args>
-auto Async(AsyncQueue queueType, Function&& f, Args&&... args)
+auto Async(QueuePriority queueType, Function&& f, Args&&... args)
 {
     auto queue = detail::SelectDispatchQueue(queueType);
     assert(queue);
