@@ -73,6 +73,7 @@
         "*.ipp": "cpp",
         "condition_variable": "cpp",
         "__mutex_base": "cpp",
-        "queue": "cpp"
+        "queue": "cpp",
+        "thread": "cpp"
     }
 }
