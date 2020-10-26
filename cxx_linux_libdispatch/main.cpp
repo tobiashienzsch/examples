@@ -3,27 +3,26 @@
 #include <cstdio>
 #include <cstdlib>
 
+#include <algorithm>
+#include <fstream>
+#include <iostream>
+#include <sstream>
 #include <vector>
 
 int main()
 {
-    auto task = [&](int i) -> int {
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
-        std::printf("%d\n", i);
-        return i;
-    };
+    std::vector<std::future<std::vector<char>>> tasks;
+    tasks.reserve(128);
+    std::generate_n(std::back_inserter(tasks), 128, [] {
+        return mc::Async(mc::QueuePriority::Default, [] {
+            auto input = std::ifstream("/home/tobante/bin/bin/_pcbnew.kiface", std::ios::binary);
+            auto bytes = std::vector<char>((std::istreambuf_iterator<char>(input)), (std::istreambuf_iterator<char>()));
+            input.close();
+            return bytes;
+        });
+    });
 
-    auto futures = std::vector<std::future<int>> {};
-
-    for (auto i = 0; i < 1'000; ++i)
-    {
-        futures.push_back(mc::Async(mc::QueuePriority::Default, task, i));
-    }
-
-    for (auto& f : futures)
-    {
-        f.get();
-    }
+    std::for_each(begin(tasks), end(tasks), [](auto& f) { std::cout << f.get().size() << '\n'; });
 
     return 0;
 }
