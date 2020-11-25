@@ -74,6 +74,13 @@
         "condition_variable": "cpp",
         "__mutex_base": "cpp",
         "queue": "cpp",
-        "thread": "cpp"
+        "thread": "cpp",
+        "ctime": "cpp",
+        "hash_map": "cpp",
+        "numeric": "cpp",
+        "ranges": "cpp",
+        "__errc": "cpp",
+        "__hash_table": "cpp",
+        "__locale": "cpp"
     }
 }
