@@ -1,0 +1,35 @@
+#include <algorithm>
+#include <array>
+#include <chrono>
+#include <functional>
+#include <iostream>
+#include <iterator>
+#include <map>
+#include <optional>
+#include <string>
+#include <tuple>
+#include <type_traits>
+#include <utility>
+#include <variant>
+#include <vector>
+
+int main()
+{
+    {% raw %}
+    auto a = std::array {1, 2, 3};
+    std::cout << "Array: " << a.size() << '\n';
+
+    auto m = std::map<int, std::string>{{1, std::string("test")}};
+    std::cout << "Map: " << m.size() << '\n'; 
+    {% endraw %}
+    auto o = std::optional {1};
+    std::cout << "Optional: " << *o << '\n';
+
+    auto va = std::variant<int, float>(1.43f);
+    std::cout << "Variant: " << std::get<float>(va) << '\n';
+
+    auto v = std::vector {1, 2, 3};
+    std::cout << "Vector: " << v.size() << '\n';
+
+    return {{return_code}};
+}

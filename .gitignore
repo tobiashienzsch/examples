@@ -1,3 +1,7 @@
 a.out
 build
 cmake-build-*
+
+venv
+.env
+.venv
