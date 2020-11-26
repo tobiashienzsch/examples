@@ -82,5 +82,6 @@
         "__errc": "cpp",
         "__hash_table": "cpp",
         "__locale": "cpp"
-    }
+    },
+    "python.pythonPath": "py_numba/venv/bin/python"
 }

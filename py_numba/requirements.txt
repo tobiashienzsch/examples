@@ -1,0 +1,6 @@
+autopep8
+pylint
+
+numpy
+numba
+matplotlib

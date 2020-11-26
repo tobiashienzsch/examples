@@ -5,3 +5,5 @@ cmake-build-*
 venv
 .env
 .venv
+
+__pycache__

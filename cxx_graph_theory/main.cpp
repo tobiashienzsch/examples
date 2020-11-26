@@ -4,6 +4,7 @@
 #include <cstdlib>
 
 #include <array>
+#include <functional>
 #include <iostream>
 #include <iterator>
 #include <map>
@@ -21,7 +22,14 @@ auto operator<<(std::ostream& out, Edge const& edge) -> std::ostream&
     return out;
 }
 
-using Graph = std::map<std::uint32_t, std::vector<Edge>>;
+using EdgeList = std::vector<Edge>;
+struct Node
+{
+    EdgeList Edges;
+    std::function<double(double)> Handler = nullptr;
+};
+
+using Graph = std::map<std::uint32_t, Node>;
 
 /*
  * @brief Performs a depth first search on the graph to give us the topological
@@ -36,9 +44,9 @@ auto DepthFirstSearch(std::uint32_t orderIndex, std::uint32_t currentNodeID,
 
     visited[currentNodeID] = true;
 
-    if (auto const& edges = graph.at(currentNodeID); !edges.empty())
+    if (auto const& node = graph.at(currentNodeID); !node.Edges.empty())
     {
-        for (auto const& edge : edges)
+        for (auto const& edge : node.Edges)
         {
             if (!visited[edge.Sink])
             {
@@ -63,7 +71,7 @@ auto TopologicalSort(Graph const& graph) -> std::vector<std::uint32_t>
     auto visited        = std::vector<bool>(numNodes);
 
     auto i = numNodes - 1;
-    for (std::size_t at = 0; at < numNodes; at++)
+    for (std::uint32_t at = 0; at < numNodes; at++)
     {
         if (!visited[at])
         {
@@ -77,19 +85,19 @@ auto TopologicalSort(Graph const& graph) -> std::vector<std::uint32_t>
 auto Test_TopologicalSort() -> bool
 {
     auto graph = Graph {};
-    for (auto i = 0; i < 7; i++)
+    for (std::uint32_t i = 0; i < 7; i++)
     {
-        graph.emplace(i, std::vector<Edge> {});
+        graph.emplace(i, Node {std::vector<Edge> {}});
     }
-    graph.at(0).push_back(Edge {0, 1});
-    graph.at(0).push_back(Edge {0, 2});
-    graph.at(0).push_back(Edge {0, 5});
-    graph.at(1).push_back(Edge {1, 3});
-    graph.at(1).push_back(Edge {1, 2});
-    graph.at(2).push_back(Edge {2, 3});
-    graph.at(2).push_back(Edge {2, 4});
-    graph.at(3).push_back(Edge {3, 4});
-    graph.at(5).push_back(Edge {5, 4});
+    graph.at(0).Edges.push_back(Edge {0, 1});
+    graph.at(0).Edges.push_back(Edge {0, 2});
+    graph.at(0).Edges.push_back(Edge {0, 5});
+    graph.at(1).Edges.push_back(Edge {1, 3});
+    graph.at(1).Edges.push_back(Edge {1, 2});
+    graph.at(2).Edges.push_back(Edge {2, 3});
+    graph.at(2).Edges.push_back(Edge {2, 4});
+    graph.at(3).Edges.push_back(Edge {3, 4});
+    graph.at(5).Edges.push_back(Edge {5, 4});
 
     auto const expected = std::array<std::uint32_t, 7> {6, 0, 5, 1, 2, 3, 4};
     auto const ordering = TopologicalSort(graph);
@@ -114,7 +122,7 @@ public:
             if (!visited_[i])
             {
                 ++count_;
-                dfs(i);
+                dfs({i});
             }
         }
     }
@@ -125,14 +133,14 @@ public:
     }
 
 private:
-    auto dfs(std::uint32_t currentNodeID) -> void
+    auto dfs(std::uint32_t currentNode) -> void
     {
-        visited_[currentNodeID]    = true;
-        components_[currentNodeID] = count_;
+        visited_[currentNode]    = true;
+        components_[currentNode] = count_;
 
-        if (auto const& edges = graph_.at(currentNodeID); !edges.empty())
+        if (auto const& node = graph_.at(currentNode); !node.Edges.empty())
         {
-            for (auto const& edge : edges)
+            for (auto const& edge : node.Edges)
             {
                 if (!visited_[edge.Sink])
                 {
@@ -159,20 +167,18 @@ auto main() -> int
 
     auto stream      = std::ostream_iterator<std::uint32_t>(std::cout, " ");
     auto const graph = Graph {
-        {0, {Edge {0, 1}}},
-        {1, {Edge {1, 2}}},
-        {2, {Edge {2, 3}, Edge {2, 6}}},
-        {3, {}},
-        {4, {Edge {4, 5}}},
-        {5, {Edge {5, 2}}},
-        {6, {}},
+        {0, Node {{Edge {0, 1}}}},
+        {1, Node {{Edge {1, 2}, Edge {1, 4}}}},
+        {2, Node {{Edge {2, 3}, Edge {2, 4}}}},
+        {3, Node {{}}},
+        {4, Node {{}}},
     };
 
     std::cout << "Graph: \n";
     for (auto const& node : graph)
     {
         std::cout << node.first << ": [";
-        for (auto edge : node.second)
+        for (auto edge : node.second.Edges)
         {
             std::cout << edge.Sink << " ";
         }
