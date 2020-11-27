@@ -165,13 +165,26 @@ auto main() -> int
         return EXIT_FAILURE;
     }
 
-    auto stream      = std::ostream_iterator<std::uint32_t>(std::cout, " ");
+    auto stream         = std::ostream_iterator<std::uint32_t>(std::cout, " ");
+    auto defaultHandler = [](auto x) { return x * 2.0; };
+    // auto const graph    = Graph {
+    //     {0, Node {{Edge {0, 1}}, [](auto /*x*/) { return 1.0; }}},
+    //     {1, Node {{Edge {1, 2}}, defaultHandler}},
+    //     {2, Node {{Edge {2, 3}, Edge {2, 4}}, defaultHandler}},
+    //     {3, Node {{}, defaultHandler}},
+    //     {4, Node {{}, defaultHandler}},
+    // };
+
     auto const graph = Graph {
-        {0, Node {{Edge {0, 1}}}},
-        {1, Node {{Edge {1, 2}, Edge {1, 4}}}},
-        {2, Node {{Edge {2, 3}, Edge {2, 4}}}},
-        {3, Node {{}}},
-        {4, Node {{}}},
+        {0, Node {{Edge {0, 1}}, [](auto /*x*/) { return 1.0; }}},
+        {1, Node {{Edge {1, 4}}, defaultHandler}},
+        {2, Node {{Edge {2, 3}}, [](auto /*x*/) { return 2.0; }}},
+        {3, Node {{Edge {3, 4}}, defaultHandler}},
+        {4, Node {{},
+                  [](auto val) {
+                      std::cout << "final: " << val << '\n';
+                      return val;
+                  }}},
     };
 
     std::cout << "Graph: \n";
@@ -195,6 +208,32 @@ auto main() -> int
     std::cout << "\nOrdering (TopologicalSort): \n";
     std::copy(begin(ordering), end(ordering), stream);
     std::cout << '\n';
+
+    std::cout << "\nSimulation:\n";
+    auto buffers = std::map<std::uint32_t, double> {};
+    for (auto const& node : graph)
+    {
+        buffers.emplace(std::make_pair(node.first, 0.0));
+    }
+
+    for (auto id : ordering)
+    {
+        auto const& node  = graph.find(id);
+        auto const input  = buffers.at(id);
+        auto const output = node->second.Handler(input);
+        // std::cout << id << ": with: " << input << '\n';
+
+        auto const& outEdges = node->second.Edges;
+        for (auto const& edge : outEdges)
+        {
+            buffers.at(edge.Sink) += output;
+        }
+    }
+
+    for (auto const& buffer : buffers)
+    {
+        std::cout << buffer.first << ": " << buffer.second << '\n';
+    }
 
     return EXIT_SUCCESS;
 }
