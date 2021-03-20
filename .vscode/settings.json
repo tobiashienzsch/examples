@@ -81,7 +81,8 @@
         "ranges": "cpp",
         "__errc": "cpp",
         "__hash_table": "cpp",
-        "__locale": "cpp"
+        "__locale": "cpp",
+        "filesystem": "cpp"
     },
     "python.pythonPath": "py_numba/venv/bin/python"
 }
