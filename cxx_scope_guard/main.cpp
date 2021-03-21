@@ -47,7 +47,7 @@ auto operator+(ScopeGuardOnExit /*unused*/, Func&& func) -> ScopeGuard<Func>
 
 #define SCOPE_EXIT                                                             \
     auto ANONYMOUS_VARIABLE(SCOPE_EXIT_STATE)                                  \
-        = ::mc::detail::ScopeGuardOnExit {} + [&]()
+        = ::mc::detail::ScopeGuardOnExit {} + [&]()  // NOLINT
 
 auto main() -> int
 {
