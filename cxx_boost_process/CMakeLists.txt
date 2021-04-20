@@ -7,7 +7,7 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
     set(CMAKE_CXX_EXTENSIONS NO)
     set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
     set(BUILD_SHARED_LIBS OFF)
-endif()    
+endif()
 
 set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
 set(THREADS_PREFER_PTHREAD_FLAG TRUE)
@@ -19,9 +19,9 @@ include(CompilerWarnings)
 find_package(Boost 1.71 COMPONENTS filesystem  REQUIRED)
 
 add_executable(${PROJECT_NAME} src/main.cpp)
-target_link_libraries(${PROJECT_NAME} PRIVATE 
-    Boost::headers 
-    Boost::filesystem 
-    Threads::Threads 
+target_link_libraries(${PROJECT_NAME} PRIVATE
+    Boost::headers
+    Boost::filesystem
+    Threads::Threads
     th::CompilerWarnings
 )

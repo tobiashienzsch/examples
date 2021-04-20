@@ -1,6 +1,10 @@
-#include <array>
 #include <cassert>
+#include <cstddef>
+#include <cstdint>
+#include <cstdio>
 #include <cstdlib>
+
+#include <array>
 
 namespace mc
 {
@@ -17,22 +21,23 @@ class FallbackAllocator
     , private Fallback
 {
 public:
-    [[nodiscard]] auto allocate(std::size_t numBytes) -> AllocBlock
+    [[nodiscard]] auto allocate(std::size_t size) -> AllocBlock
     {
-        if (auto const block = Primary::allocate(numBytes);
-            block.ptr != nullptr)
+        if (auto const block = Primary::allocate(size); block.ptr != nullptr)
         {
             return block;
         }
-        return Fallback::allocate(numBytes);
+        return Fallback::allocate(size);
     }
 
     auto deallocate(AllocBlock block) -> void
     {
         if (Primary::owns(block))
         {
-            return Primary::deallocate(block);
+            Primary::deallocate(block);
+            return;
         }
+
         return Fallback::deallocate(block);
     }
 
@@ -45,7 +50,7 @@ public:
 class NullAllocator
 {
 public:
-    [[nodiscard]] static auto allocate(std::size_t /*numBytes*/) noexcept
+    [[nodiscard]] static auto allocate(std::size_t /*size*/) noexcept
         -> AllocBlock
     {
         return AllocBlock {nullptr, 0};
@@ -65,26 +70,31 @@ public:
 class MallocAllocator
 {
 public:
-    [[nodiscard]] static auto allocate(std::size_t numBytes) -> AllocBlock
+    [[nodiscard]] static auto allocate(std::size_t size) -> AllocBlock
     {
-        return AllocBlock {std::malloc(numBytes), numBytes};
+        return AllocBlock {std::malloc(size), size};
     }
 
     static auto deallocate(AllocBlock block) -> void { std::free(block.ptr); }
+
+    [[nodiscard]] static auto owns(AllocBlock /*block*/) -> bool
+    {
+        return true;
+    }
 };
 
 template<std::size_t Size>
 class StackAllocator
 {
 public:
-    [[nodiscard]] auto allocate(std::size_t numBytes) noexcept -> AllocBlock
+    [[nodiscard]] auto allocate(std::size_t size) noexcept -> AllocBlock
     {
-        auto const n = roundToAligned(numBytes);
+        auto const n = roundToAligned(size);
         if (n > static_cast<size_t>(memory_.data() + Size - next_))
         {
             return AllocBlock {nullptr, 0};
         }
-        auto block = AllocBlock {next_, numBytes};
+        auto block = AllocBlock {next_, size};
         next_ += n;
         return block;
     }
@@ -115,17 +125,53 @@ private:
     char* next_ {memory_.data()};
 };
 
-using LocalAllocator = FallbackAllocator<StackAllocator<1024>, NullAllocator>;
+template<typename Upstream>
+class LoggingAllocator : private Upstream
+{
+public:
+    [[nodiscard]] auto allocate(std::size_t size) noexcept -> AllocBlock
+    {
+        auto const block = Upstream::allocate(size);
+        std::printf("%-10lu new %p\n", block.size, block.ptr);
+        return block;
+    }
+
+    auto deallocate(AllocBlock block) noexcept -> void
+    {
+        std::printf("%-10lu del %p\n", block.size, block.ptr);
+        Upstream::deallocate(block);
+    }
+
+    [[nodiscard]] auto owns(AllocBlock block) noexcept -> bool
+    {
+        return Upstream::owns(block);
+    }
+};
+
+using LocalAllocator = LoggingAllocator<
+    FallbackAllocator<StackAllocator<1024>, MallocAllocator>>;
 }  // namespace mc
 
-auto alloc(mc::LocalAllocator& alloc) -> mc::AllocBlock
+auto main() -> int
 {
-    return alloc.allocate(128);
-}
+    auto localAlloc = mc::LocalAllocator {};
+    localAlloc.deallocate(localAlloc.allocate(128));
+    localAlloc.deallocate(localAlloc.allocate(512));
+    localAlloc.deallocate(localAlloc.allocate(1024));
+    localAlloc.deallocate(localAlloc.allocate(2048));
+    localAlloc.deallocate(localAlloc.allocate(1U << 14));
+    localAlloc.deallocate(localAlloc.allocate(1U << 14));
+    localAlloc.deallocate(localAlloc.allocate(1U << 16));
+    localAlloc.deallocate(localAlloc.allocate(1U << 16));
+    localAlloc.deallocate(localAlloc.allocate(1U << 24));
 
-auto owns(mc::LocalAllocator& alloc, void* ptr, std::size_t n) -> bool
-{
-    return alloc.owns({ptr, n});
-}
+    auto const b1 = localAlloc.allocate(4096);
+    auto const b2 = localAlloc.allocate(4096 * 3);
+    auto const b3 = localAlloc.allocate(4096 * 6);
 
-auto main() -> int { return 0; }
+    localAlloc.deallocate(b1);
+    localAlloc.deallocate(b2);
+    localAlloc.deallocate(b3);
+
+    return 0;
+}
