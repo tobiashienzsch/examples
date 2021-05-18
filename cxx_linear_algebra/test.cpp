@@ -198,6 +198,20 @@ auto vector_test() -> void
     auto stream = std::stringstream {};
     stream << lhs;
     REQUIRE(stream.str() == "1 2 3 ");
+
+    lhs[0] = T {4};
+    lhs[1] = T {0};
+    lhs[2] = T {0};
+
+    auto normalized = lhs.normalized();
+    REQUIRE(normalized[0] == T {2});
+    REQUIRE(normalized[1] == T {0});
+    REQUIRE(normalized[2] == T {0});
+
+    lhs.normalize();
+    REQUIRE(lhs[0] == T {2});
+    REQUIRE(lhs[1] == T {0});
+    REQUIRE(lhs[2] == T {0});
 }
 
 template<typename T>
@@ -278,19 +292,9 @@ auto matrix_test() -> void
 
 auto main() -> int
 {
-    vector_test<std::int16_t>();
-    vector_test<std::int32_t>();
-    vector_test<std::int64_t>();
-
-    vector_test<int>();
     vector_test<float>();
     vector_test<double>();
 
-    matrix_test<std::int16_t>();
-    matrix_test<std::int32_t>();
-    matrix_test<std::int64_t>();
-
-    matrix_test<int>();
     matrix_test<float>();
     matrix_test<double>();
 

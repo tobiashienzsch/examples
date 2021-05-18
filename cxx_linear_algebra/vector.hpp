@@ -1,11 +1,14 @@
 #pragma once
 
+#include <cmath>
 #include <cstddef>
 #include <cstdint>
 
 #include <algorithm>
 #include <iterator>
 #include <memory>
+#include <numeric>
+#include <ostream>
 #include <stdexcept>
 
 namespace ta
@@ -18,6 +21,7 @@ struct DynamicVector
 
     DynamicVector() noexcept = default;
     DynamicVector(size_type size);
+    DynamicVector(DynamicVector<T> const& other);
 
     auto clear() noexcept -> void;
     auto resize(size_type size) -> void;
@@ -29,6 +33,10 @@ struct DynamicVector
 
     [[nodiscard]] auto operator[](size_type idx) -> value_type&;
     [[nodiscard]] auto operator[](size_type idx) const -> value_type const&;
+
+    auto normalize() const noexcept -> void;
+    [[nodiscard]] auto normalized() const noexcept -> DynamicVector<T>;
+    [[nodiscard]] auto norm() const noexcept -> value_type;
 
 private:
     std::unique_ptr<value_type[]> data_ {};  // NOLINT
@@ -76,6 +84,15 @@ DynamicVector<T>::DynamicVector(size_type size)
 }
 
 template<typename T>
+DynamicVector<T>::DynamicVector(DynamicVector<T> const& other)
+{
+    data_ = std::make_unique<value_type[]>(other.size());  // NOLINT
+    size_ = other.size();
+    std::copy(other.data_.get(), std::next(other.data_.get(), size()),
+              data_.get());
+}
+
+template<typename T>
 auto DynamicVector<T>::clear() noexcept -> void
 {
     std::fill(data_.get(), std::next(data_.get(), size()), value_type {});
@@ -93,6 +110,31 @@ template<typename T>
 auto DynamicVector<T>::size() const noexcept -> size_type
 {
     return size_;
+}
+
+template<typename T>
+auto DynamicVector<T>::norm() const noexcept -> value_type
+{
+    auto const* ptr = data_.get();
+    auto const sum  = std::accumulate(ptr, std::next(ptr, size()), T {});
+    return std::sqrt(sum);
+}
+
+template<typename T>
+auto DynamicVector<T>::normalized() const noexcept -> DynamicVector<T>
+{
+    auto const norm = this->norm();
+    DynamicVector<T> result {*this};
+    return result * (T {1} / norm);
+}
+
+template<typename T>
+auto DynamicVector<T>::normalize() const noexcept -> void
+{
+    auto* ptr       = data_.get();
+    auto const norm = this->norm();
+    auto const func = [norm](auto const& v) { return v * (T {1} / norm); };
+    std::transform(ptr, std::next(ptr, size()), ptr, func);
 }
 
 template<typename T>

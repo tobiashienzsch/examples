@@ -1,5 +1,7 @@
 #pragma once
 
+#include "vector.hpp"
+
 #include <cstddef>
 #include <cstdint>
 
@@ -76,6 +78,10 @@ auto operator-(T scaler, DynamicMatrix<T> const& m) -> DynamicMatrix<T>;
 template<typename T>
 auto operator*(DynamicMatrix<T> const& l, DynamicMatrix<T> const& r)
     -> DynamicMatrix<T>;
+
+template<typename T>
+auto operator*(DynamicMatrix<T> const& mat, DynamicVector<T> const& vec)
+    -> DynamicVector<T>;
 
 template<typename T>
 auto operator*(DynamicMatrix<T> const& m, T scaler) -> DynamicMatrix<T>;
@@ -260,6 +266,29 @@ template<typename T>
 auto operator*(T scaler, DynamicMatrix<T> const& m) -> DynamicMatrix<T>
 {
     return m * scaler;
+}
+
+template<typename T>
+auto operator*(DynamicMatrix<T> const& mat, DynamicVector<T> const& vec)
+    -> DynamicVector<T>
+{
+    if (mat.cols() != vec.size())
+    {
+        throw std::domain_error("matrix columns and vector size must match");
+    }
+
+    auto result = DynamicVector<T> {vec};
+    for (decltype(mat.rows()) row = 0; row < mat.rows(); ++row)
+    {
+        auto sum = T {};
+        for (decltype(mat.cols()) col = 0; col < mat.cols(); ++col)
+        {
+            sum += mat.at(row, col) * vec[col];
+        }
+        result[row] = sum;
+    }
+
+    return result;
 }
 
 template<typename T>
