@@ -6,6 +6,7 @@
 #include "llvm/IR/Module.h"
 #include "llvm/IRReader/IRReader.h"
 #include "llvm/Support/InitLLVM.h"
+#include "llvm/Support/SourceMgr.h"
 #include "llvm/Support/TargetRegistry.h"
 #include "llvm/Support/TargetSelect.h"
 #include "llvm/Support/raw_ostream.h"
