@@ -61,6 +61,13 @@ template<typename T>
 auto operator<<(std::ostream& out, DynamicVector<T> const& vec)
     -> std::ostream&;
 
+template<typename T>
+auto dotProduct(DynamicVector<T> const& l, DynamicVector<T> const& r) -> T;
+
+template<typename T>
+auto crossProduct(DynamicVector<T> const& l, DynamicVector<T> const& r)
+    -> DynamicVector<T>;
+
 // IMPLEMENTATION
 template<typename T>
 DynamicVector<T>::DynamicVector(size_type size)
@@ -197,5 +204,30 @@ auto operator<<(std::ostream& out, DynamicVector<T> const& vec) -> std::ostream&
     }
     return out;
 }
+
+template<typename T>
+auto dotProduct(DynamicVector<T> const& l, DynamicVector<T> const& r) -> T
+{
+    if (l.size() != r.size())
+    {
+        throw std::logic_error("Both DynamicVectors need to be the same size");
+    }
+
+    auto result     = T {};
+    using size_type = typename DynamicVector<T>::size_type;
+    for (size_type i = 0; i < l.size(); ++i)
+    {
+        result += l[i] * r[i];
+    }
+
+    return result;
+}
+
+// template<typename T>
+// auto crossProduct(DynamicVector<T> const& l, DynamicVector<T> const& r)
+//     -> DynamicVector<T>
+// {
+//     return {};
+// }
 
 }  // namespace ta

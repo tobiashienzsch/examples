@@ -2,6 +2,7 @@
 #include "vector.hpp"
 
 #include <cstring>
+#include <sstream>
 #include <utility>
 
 #define REQUIRE(exp)                                                           \
@@ -38,6 +39,7 @@ auto vector_test() -> void
     vec[0] = T {1};
     vec[1] = T {2};
     vec[2] = T {3};
+
     REQUIRE(vec[0] == T {1});
     REQUIRE(vec[1] == T {2});
     REQUIRE(vec[2] == T {3});
@@ -67,9 +69,10 @@ auto vector_test() -> void
     REQUIRE(zero_sub[1] == T {});
     REQUIRE(zero_sub[2] == T {});
 
-    vec[0]             = T {1};
-    vec[1]             = T {2};
-    vec[2]             = T {3};
+    vec[0] = T {1};
+    vec[1] = T {2};
+    vec[2] = T {3};
+
     auto half_zero_add = vec + same_size;
     REQUIRE(half_zero_add.size() == 3);
     REQUIRE(half_zero_add[0] == T {1});
@@ -85,7 +88,8 @@ auto vector_test() -> void
     same_size[0] = T {1};
     same_size[1] = T {1};
     same_size[2] = T {1};
-    auto add     = vec + same_size;
+
+    auto add = vec + same_size;
     REQUIRE(add.size() == 3);
     REQUIRE(add[0] == T {2});
     REQUIRE(add[1] == T {3});
@@ -130,6 +134,33 @@ auto vector_test() -> void
         auto const* msg = "Both DynamicVectors need to be the same size";
         REQUIRE((std::strcmp(e.what(), msg) == 0));
     }
+
+    auto lhs = ta::DynamicVector<T> {2};
+    auto rhs = ta::DynamicVector<T> {2};
+    lhs[0]   = T {1};
+    lhs[1]   = T {2};
+    rhs[0]   = T {1};
+    rhs[1]   = T {2};
+    REQUIRE(ta::dotProduct(lhs, rhs) == T {5});
+
+    rhs[0] = T {4};
+    rhs[1] = T {4};
+    REQUIRE(ta::dotProduct(lhs, rhs) == T {12});
+
+    try
+    {
+        ta::dotProduct(lhs, ta::DynamicVector<T> {3});
+        REQUIRE(false);
+    }
+    catch (std::logic_error const& e)
+    {
+        auto const* msg = "Both DynamicVectors need to be the same size";
+        REQUIRE((std::strcmp(e.what(), msg) == 0));
+    }
+
+    auto stream = std::stringstream {};
+    stream << lhs;
+    REQUIRE(stream.str() == "1 2 ");
 }
 
 template<typename T>
@@ -210,9 +241,17 @@ auto matrix_test() -> void
 
 auto main() -> int
 {
+    vector_test<std::int16_t>();
+    vector_test<std::int32_t>();
+    vector_test<std::int64_t>();
+
     vector_test<int>();
     vector_test<float>();
     vector_test<double>();
+
+    matrix_test<std::int16_t>();
+    matrix_test<std::int32_t>();
+    matrix_test<std::int64_t>();
 
     matrix_test<int>();
     matrix_test<float>();
