@@ -118,9 +118,9 @@ auto vector_test() -> void
         auto fail = vec + ta::DynamicVector<T> {5};
         REQUIRE(false);
     }
-    catch (std::logic_error const& e)
+    catch (std::domain_error const& e)
     {
-        auto const* msg = "Both DynamicVectors need to be the same size";
+        auto const* msg = "vectors need to be the same size";
         REQUIRE((std::strcmp(e.what(), msg) == 0));
     }
 
@@ -129,9 +129,9 @@ auto vector_test() -> void
         auto fail = vec - ta::DynamicVector<T> {5};
         REQUIRE(false);
     }
-    catch (std::logic_error const& e)
+    catch (std::domain_error const& e)
     {
-        auto const* msg = "Both DynamicVectors need to be the same size";
+        auto const* msg = "vectors need to be the same size";
         REQUIRE((std::strcmp(e.what(), msg) == 0));
     }
 
@@ -147,20 +147,57 @@ auto vector_test() -> void
     rhs[1] = T {4};
     REQUIRE(ta::dotProduct(lhs, rhs) == T {12});
 
+    lhs.resize(3);
+    rhs.resize(3);
+    lhs[0] = T {1};
+    lhs[1] = T {2};
+    lhs[2] = T {3};
+
+    rhs[0] = T {1};
+    rhs[1] = T {2};
+    rhs[2] = T {3};
+
+    auto cross = ta::crossProduct(lhs, rhs);
+    REQUIRE(cross[0] == T {0});
+    REQUIRE(cross[1] == T {0});
+    REQUIRE(cross[2] == T {0});
+
     try
     {
-        ta::dotProduct(lhs, ta::DynamicVector<T> {3});
+        ta::crossProduct(lhs, ta::DynamicVector<T> {16});
         REQUIRE(false);
     }
-    catch (std::logic_error const& e)
+    catch (std::domain_error const& e)
     {
-        auto const* msg = "Both DynamicVectors need to be the same size";
+        constexpr auto const* msg = "vectors need to be the same size";
+        REQUIRE((std::strcmp(e.what(), msg) == 0));
+    }
+
+    try
+    {
+        ta::crossProduct(ta::DynamicVector<T> {16}, ta::DynamicVector<T> {16});
+        REQUIRE(false);
+    }
+    catch (std::domain_error const& e)
+    {
+        constexpr auto const* msg = "only 3-dimensional vector supported";
+        REQUIRE((std::strcmp(e.what(), msg) == 0));
+    }
+
+    try
+    {
+        ta::dotProduct(lhs, ta::DynamicVector<T> {16});
+        REQUIRE(false);
+    }
+    catch (std::domain_error const& e)
+    {
+        auto const* msg = "vectors need to be the same size";
         REQUIRE((std::strcmp(e.what(), msg) == 0));
     }
 
     auto stream = std::stringstream {};
     stream << lhs;
-    REQUIRE(stream.str() == "1 2 ");
+    REQUIRE(stream.str() == "1 2 3 ");
 }
 
 template<typename T>

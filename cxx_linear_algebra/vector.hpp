@@ -149,7 +149,7 @@ auto operator+(DynamicVector<T> const& l, DynamicVector<T> const& r)
 {
     if (l.size() != r.size())
     {
-        throw std::logic_error("Both DynamicVectors need to be the same size");
+        throw std::domain_error("vectors need to be the same size");
     }
 
     auto result = DynamicVector<T> {l.size()};
@@ -166,7 +166,7 @@ auto operator-(DynamicVector<T> const& l, DynamicVector<T> const& r)
 {
     if (l.size() != r.size())
     {
-        throw std::logic_error("Both DynamicVectors need to be the same size");
+        throw std::domain_error("vectors need to be the same size");
     }
 
     auto result = DynamicVector<T> {l.size()};
@@ -210,7 +210,7 @@ auto dotProduct(DynamicVector<T> const& l, DynamicVector<T> const& r) -> T
 {
     if (l.size() != r.size())
     {
-        throw std::logic_error("Both DynamicVectors need to be the same size");
+        throw std::domain_error("vectors need to be the same size");
     }
 
     auto result     = T {};
@@ -223,11 +223,24 @@ auto dotProduct(DynamicVector<T> const& l, DynamicVector<T> const& r) -> T
     return result;
 }
 
-// template<typename T>
-// auto crossProduct(DynamicVector<T> const& l, DynamicVector<T> const& r)
-//     -> DynamicVector<T>
-// {
-//     return {};
-// }
+template<typename T>
+auto crossProduct(DynamicVector<T> const& l, DynamicVector<T> const& r)
+    -> DynamicVector<T>
+{
+    if (l.size() != r.size())
+    {
+        throw std::domain_error("vectors need to be the same size");
+    }
+    if (l.size() != 3)
+    {
+        throw std::domain_error("only 3-dimensional vector supported");
+    }
+
+    auto result = DynamicVector<T> {l.size()};
+    result[0]   = (l[1] * r[2]) - (l[2] * r[1]);
+    result[1]   = (l[0] * r[2]) - (l[2] * r[0]);
+    result[2]   = (l[0] * r[1]) - (l[1] * r[0]);
+    return result;
+}
 
 }  // namespace ta
