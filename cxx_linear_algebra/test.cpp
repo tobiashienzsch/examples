@@ -1,12 +1,16 @@
 #include "matrix.hpp"
 #include "vector.hpp"
 
+#include <cstring>
+#include <utility>
+
 #define REQUIRE(exp)                                                           \
     do                                                                         \
     {                                                                          \
         if (!(exp))                                                            \
         {                                                                      \
-            ::std::cerr << "FAIL: " << __FILE__ << ":" << __LINE__ << '\n';    \
+            ::std::cerr << "FAIL: " << __FILE__ << ":" << __LINE__             \
+                        << " in: " << __PRETTY_FUNCTION__ << '\n';             \
             ::std::exit(EXIT_FAILURE);                                         \
         }                                                                      \
     } while (false)
@@ -104,6 +108,104 @@ auto vector_test() -> void
     REQUIRE(scaled4[0] == T {4});
     REQUIRE(scaled4[1] == T {8});
     REQUIRE(scaled4[2] == T {12});
+
+    try
+    {
+        auto fail = vec + ta::DynamicVector<T> {5};
+        REQUIRE(false);
+    }
+    catch (std::logic_error const& e)
+    {
+        auto const* msg = "Both DynamicVectors need to be the same size";
+        REQUIRE((std::strcmp(e.what(), msg) == 0));
+    }
+
+    try
+    {
+        auto fail = vec - ta::DynamicVector<T> {5};
+        REQUIRE(false);
+    }
+    catch (std::logic_error const& e)
+    {
+        auto const* msg = "Both DynamicVectors need to be the same size";
+        REQUIRE((std::strcmp(e.what(), msg) == 0));
+    }
+}
+
+template<typename T>
+auto matrix_test() -> void
+{
+    auto mat = ta::DynamicMatrix<T> {};
+    REQUIRE(mat.rows() == 0);
+    REQUIRE(mat.cols() == 0);
+    REQUIRE(mat.size() == 0);
+
+    mat.resize(2, 2);
+    REQUIRE(mat.rows() == 2);
+    REQUIRE(mat.cols() == 2);
+    REQUIRE(mat.size() == 4);
+
+    REQUIRE(mat.at(0, 0) == T {0});
+    REQUIRE(mat.at(0, 1) == T {0});
+    REQUIRE(mat.at(1, 0) == T {0});
+    REQUIRE(mat.at(1, 1) == T {0});
+
+    mat.at(0, 0) = T {0};
+    mat.at(0, 1) = T {1};
+    mat.at(1, 0) = T {2};
+    mat.at(1, 1) = T {3};
+
+    auto const& const_mat = mat;
+    REQUIRE(const_mat.at(0, 0) == T {0});
+    REQUIRE(const_mat.at(0, 1) == T {1});
+    REQUIRE(const_mat.at(1, 0) == T {2});
+    REQUIRE(const_mat.at(1, 1) == T {3});
+
+    auto scaled = mat * T {2};
+    REQUIRE(scaled.at(0, 0) == T {0});
+    REQUIRE(scaled.at(0, 1) == T {2});
+    REQUIRE(scaled.at(1, 0) == T {4});
+    REQUIRE(scaled.at(1, 1) == T {6});
+
+    auto scaled_twice = T {2} * scaled;
+    REQUIRE(scaled_twice.at(0, 0) == T {0});
+    REQUIRE(scaled_twice.at(0, 1) == T {4});
+    REQUIRE(scaled_twice.at(1, 0) == T {8});
+    REQUIRE(scaled_twice.at(1, 1) == T {12});
+
+    auto add_scaler = T {2} + mat;
+    REQUIRE(add_scaler.at(0, 0) == T {2});
+    REQUIRE(add_scaler.at(0, 1) == T {3});
+    REQUIRE(add_scaler.at(1, 0) == T {4});
+    REQUIRE(add_scaler.at(1, 1) == T {5});
+
+    auto sub_scaler = T {2} - mat;
+    REQUIRE(sub_scaler.at(0, 0) == T {-2});
+    REQUIRE(sub_scaler.at(0, 1) == T {-1});
+    REQUIRE(sub_scaler.at(1, 0) == T {0});
+    REQUIRE(sub_scaler.at(1, 1) == T {1});
+
+    REQUIRE(add_scaler != sub_scaler);
+
+    auto summed_matrix = add_scaler + sub_scaler;
+    REQUIRE(summed_matrix.at(0, 0) == T {0});
+    REQUIRE(summed_matrix.at(0, 1) == T {2});
+    REQUIRE(summed_matrix.at(1, 0) == T {4});
+    REQUIRE(summed_matrix.at(1, 1) == T {6});
+
+    auto sub_matrix = add_scaler - sub_scaler;
+    REQUIRE(sub_matrix.at(0, 0) == T {4});
+    REQUIRE(sub_matrix.at(0, 1) == T {4});
+    REQUIRE(sub_matrix.at(1, 0) == T {4});
+    REQUIRE(sub_matrix.at(1, 1) == T {4});
+
+    REQUIRE(sub_matrix != ta::DynamicMatrix<T> {});
+
+    mat.clear();
+    REQUIRE(mat.at(0, 0) == T {0});
+    REQUIRE(mat.at(0, 1) == T {0});
+    REQUIRE(mat.at(1, 0) == T {0});
+    REQUIRE(mat.at(1, 1) == T {0});
 }
 
 auto main() -> int
@@ -111,6 +213,10 @@ auto main() -> int
     vector_test<int>();
     vector_test<float>();
     vector_test<double>();
+
+    matrix_test<int>();
+    matrix_test<float>();
+    matrix_test<double>();
 
     return EXIT_SUCCESS;
 }
