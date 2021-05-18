@@ -1,7 +1,7 @@
 #include "matrix.hpp"
 #include "vector.hpp"
 
-auto matrix_test() -> void
+auto matrix_demo() -> void
 {
     auto mat     = ta::DynamicMatrix<double> {2, 2};
     mat.at(0, 0) = 1;
@@ -14,7 +14,7 @@ auto matrix_test() -> void
     std::cout << mat * 3.0 << '\n';
 }
 
-auto vector_test() -> void
+auto vector_demo() -> void
 {
     auto vec = ta::DynamicVector<double> {2};
     std::cout << vec << '\n';
@@ -22,7 +22,7 @@ auto vector_test() -> void
 
 auto main() -> int
 {
-    matrix_test();
-    vector_test();
+    matrix_demo();
+    vector_demo();
     return EXIT_SUCCESS;
 }

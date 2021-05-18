@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <iterator>
 #include <memory>
+#include <stdexcept>
 
 namespace ta
 {
@@ -39,6 +40,22 @@ auto operator==(DynamicVector<T> const& l, DynamicVector<T> const& r) -> bool;
 
 template<typename T>
 auto operator!=(DynamicVector<T> const& l, DynamicVector<T> const& r) -> bool;
+
+template<typename T>
+auto operator+(DynamicVector<T> const& l, DynamicVector<T> const& r)
+    -> DynamicVector<T>;
+
+template<typename T>
+auto operator-(DynamicVector<T> const& l, DynamicVector<T> const& r)
+    -> DynamicVector<T>;
+
+template<typename T>
+auto operator*(DynamicVector<T> const& vec, T const& scaler)
+    -> DynamicVector<T>;
+
+template<typename T>
+auto operator*(T const& scaler, DynamicVector<T> const& vec)
+    -> DynamicVector<T>;
 
 template<typename T>
 auto operator<<(std::ostream& out, DynamicVector<T> const& vec)
@@ -117,6 +134,57 @@ template<typename T>
 auto operator!=(DynamicVector<T> const& l, DynamicVector<T> const& r) -> bool
 {
     return !(l == r);
+}
+
+template<typename T>
+auto operator+(DynamicVector<T> const& l, DynamicVector<T> const& r)
+    -> DynamicVector<T>
+{
+    if (l.size() != r.size())
+    {
+        throw std::logic_error("Both DynamicVectors need to be the same size");
+    }
+
+    auto result = DynamicVector<T> {l.size()};
+    for (decltype(l.size()) i = 0; i < l.size(); ++i)
+    {
+        result[i] = l[i] + r[i];
+    }
+    return result;
+}
+
+template<typename T>
+auto operator-(DynamicVector<T> const& l, DynamicVector<T> const& r)
+    -> DynamicVector<T>
+{
+    if (l.size() != r.size())
+    {
+        throw std::logic_error("Both DynamicVectors need to be the same size");
+    }
+
+    auto result = DynamicVector<T> {l.size()};
+    for (decltype(l.size()) i = 0; i < l.size(); ++i)
+    {
+        result[i] = l[i] - r[i];
+    }
+    return result;
+}
+
+template<typename T>
+auto operator*(DynamicVector<T> const& vec, T const& scaler) -> DynamicVector<T>
+{
+    auto result = DynamicVector<T> {vec.size()};
+    for (decltype(vec.size()) i = 0; i < vec.size(); ++i)
+    {
+        result[i] = vec[i] * scaler;
+    }
+    return result;
+}
+
+template<typename T>
+auto operator*(T const& scaler, DynamicVector<T> const& vec) -> DynamicVector<T>
+{
+    return vec * scaler;
 }
 
 template<typename T>
