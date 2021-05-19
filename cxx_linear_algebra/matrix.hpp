@@ -10,7 +10,7 @@
 #include <iterator>
 #include <memory>
 
-namespace ta
+namespace math
 {
 
 template<typename T>
@@ -589,4 +589,4 @@ auto inverse(Matrix<T> const& mat) -> Matrix<T>
     return {};
 }
 
-}  // namespace ta
+}  // namespace math

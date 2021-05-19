@@ -11,7 +11,7 @@
 #include <ostream>
 #include <stdexcept>
 
-namespace ta
+namespace math
 {
 template<typename T>
 struct Vector
@@ -293,4 +293,4 @@ auto normalize(Vector<T>& vec) noexcept -> void
     }
 }
 
-}  // namespace ta
+}  // namespace math

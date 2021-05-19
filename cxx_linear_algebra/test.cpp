@@ -19,7 +19,7 @@
 template<typename T>
 auto vector_test() -> void
 {
-    auto vec = ta::Vector<T> {2};
+    auto vec = math::Vector<T> {2};
     REQUIRE(vec.size() == 2);
 
     vec.resize(3);
@@ -44,12 +44,12 @@ auto vector_test() -> void
     REQUIRE(vec[1] == T {2});
     REQUIRE(vec[2] == T {3});
 
-    auto other_size = ta::Vector<T> {};
+    auto other_size = math::Vector<T> {};
     REQUIRE(other_size.size() == 0);
     REQUIRE(vec != other_size);
     REQUIRE(!(vec == other_size));
 
-    auto same_size = ta::Vector<T> {3};
+    auto same_size = math::Vector<T> {3};
     REQUIRE(vec != same_size);
     REQUIRE(!(vec == same_size));
 
@@ -115,7 +115,7 @@ auto vector_test() -> void
 
     try
     {
-        auto fail = vec + ta::Vector<T> {5};
+        auto fail = vec + math::Vector<T> {5};
         REQUIRE(false);
     }
     catch (std::domain_error const& e)
@@ -126,7 +126,7 @@ auto vector_test() -> void
 
     try
     {
-        auto fail = vec - ta::Vector<T> {5};
+        auto fail = vec - math::Vector<T> {5};
         REQUIRE(false);
     }
     catch (std::domain_error const& e)
@@ -135,17 +135,17 @@ auto vector_test() -> void
         REQUIRE((std::strcmp(e.what(), msg) == 0));
     }
 
-    auto lhs = ta::Vector<T> {2};
-    auto rhs = ta::Vector<T> {2};
+    auto lhs = math::Vector<T> {2};
+    auto rhs = math::Vector<T> {2};
     lhs[0]   = T {1};
     lhs[1]   = T {2};
     rhs[0]   = T {1};
     rhs[1]   = T {2};
-    REQUIRE(ta::dotProduct(lhs, rhs) == T {5});
+    REQUIRE(math::dotProduct(lhs, rhs) == T {5});
 
     rhs[0] = T {4};
     rhs[1] = T {4};
-    REQUIRE(ta::dotProduct(lhs, rhs) == T {12});
+    REQUIRE(math::dotProduct(lhs, rhs) == T {12});
 
     lhs.resize(3);
     rhs.resize(3);
@@ -157,14 +157,14 @@ auto vector_test() -> void
     rhs[1] = T {2};
     rhs[2] = T {3};
 
-    auto cross = ta::crossProduct(lhs, rhs);
+    auto cross = math::crossProduct(lhs, rhs);
     REQUIRE(cross[0] == T {0});
     REQUIRE(cross[1] == T {0});
     REQUIRE(cross[2] == T {0});
 
     try
     {
-        ta::crossProduct(lhs, ta::Vector<T> {16});
+        math::crossProduct(lhs, math::Vector<T> {16});
         REQUIRE(false);
     }
     catch (std::domain_error const& e)
@@ -175,7 +175,7 @@ auto vector_test() -> void
 
     try
     {
-        ta::crossProduct(ta::Vector<T> {16}, ta::Vector<T> {16});
+        math::crossProduct(math::Vector<T> {16}, math::Vector<T> {16});
         REQUIRE(false);
     }
     catch (std::domain_error const& e)
@@ -186,7 +186,7 @@ auto vector_test() -> void
 
     try
     {
-        ta::dotProduct(lhs, ta::Vector<T> {16});
+        math::dotProduct(lhs, math::Vector<T> {16});
         REQUIRE(false);
     }
     catch (std::domain_error const& e)
@@ -203,12 +203,12 @@ auto vector_test() -> void
     lhs[1] = T {0};
     lhs[2] = T {0};
 
-    auto normalized = ta::normalized(lhs);
+    auto normalized = math::normalized(lhs);
     REQUIRE(normalized[0] == T {2});
     REQUIRE(normalized[1] == T {0});
     REQUIRE(normalized[2] == T {0});
 
-    ta::normalize(lhs);
+    math::normalize(lhs);
     REQUIRE(lhs[0] == T {2});
     REQUIRE(lhs[1] == T {0});
     REQUIRE(lhs[2] == T {0});
@@ -217,7 +217,7 @@ auto vector_test() -> void
 template<typename T>
 auto matrix_test() -> void
 {
-    auto mat = ta::Matrix<T> {};
+    auto mat = math::Matrix<T> {};
     REQUIRE(mat.rows() == 0);
     REQUIRE(mat.cols() == 0);
     REQUIRE(mat.size() == 0);
@@ -335,7 +335,7 @@ auto matrix_test() -> void
     REQUIRE(sub_matrix(1, 0) == T {4});
     REQUIRE(sub_matrix(1, 1) == T {4});
 
-    REQUIRE(sub_matrix != ta::Matrix<T> {});
+    REQUIRE(sub_matrix != math::Matrix<T> {});
 
     mat.clear();
     REQUIRE(mat(0, 0) == T {0});
@@ -345,19 +345,19 @@ auto matrix_test() -> void
 
     try
     {
-        auto swap  = ta::Matrix<T> {2, 2};
+        auto swap  = math::Matrix<T> {2, 2};
         swap(0, 0) = T {0};
         swap(0, 1) = T {0};
         swap(1, 0) = T {1};
         swap(1, 1) = T {1};
 
-        ta::swapRow(swap, 0, 1);
+        math::swapRow(swap, 0, 1);
         REQUIRE(swap(0, 0) == T {1});
         REQUIRE(swap(0, 1) == T {1});
         REQUIRE(swap(1, 0) == T {0});
         REQUIRE(swap(1, 1) == T {0});
 
-        ta::swapRow(swap, 0, 2);
+        math::swapRow(swap, 0, 2);
         REQUIRE(false);
     }
     catch (std::exception const& e)
@@ -368,20 +368,20 @@ auto matrix_test() -> void
 
     try
     {
-        auto multi  = ta::Matrix<T> {2, 2};
+        auto multi  = math::Matrix<T> {2, 2};
         multi(0, 0) = T {0};
         multi(0, 1) = T {0};
         multi(1, 0) = T {1};
         multi(1, 1) = T {1};
 
-        ta::multiplyRow(multi, 0, T {2});
-        ta::multiplyRow(multi, 1, T {2});
+        math::multiplyRow(multi, 0, T {2});
+        math::multiplyRow(multi, 1, T {2});
         REQUIRE(multi(0, 0) == T {0});
         REQUIRE(multi(0, 1) == T {0});
         REQUIRE(multi(1, 0) == T {2});
         REQUIRE(multi(1, 1) == T {2});
 
-        ta::multiplyRow(multi, 2, T {2});
+        math::multiplyRow(multi, 2, T {2});
         REQUIRE(false);
     }
     catch (std::exception const& e)
@@ -392,19 +392,19 @@ auto matrix_test() -> void
 
     try
     {
-        auto multiAdd  = ta::Matrix<T> {2, 2};
+        auto multiAdd  = math::Matrix<T> {2, 2};
         multiAdd(0, 0) = T {0};
         multiAdd(0, 1) = T {0};
         multiAdd(1, 0) = T {1};
         multiAdd(1, 1) = T {1};
 
-        ta::multiplyAddRow(multiAdd, 1, 0, T {2});
+        math::multiplyAddRow(multiAdd, 1, 0, T {2});
         REQUIRE(multiAdd(0, 0) == T {2});
         REQUIRE(multiAdd(0, 1) == T {2});
         REQUIRE(multiAdd(1, 0) == T {1});
         REQUIRE(multiAdd(1, 1) == T {1});
 
-        ta::multiplyAddRow(multiAdd, 2, 0, T {2});
+        math::multiplyAddRow(multiAdd, 2, 0, T {2});
         REQUIRE(false);
     }
     catch (std::exception const& e)
@@ -413,18 +413,18 @@ auto matrix_test() -> void
         REQUIRE((std::strcmp(e.what(), msg) == 0));
     }
 
-    auto maxRow  = ta::Matrix<T> {2, 2};
+    auto maxRow  = math::Matrix<T> {2, 2};
     maxRow(0, 0) = T {1};
     maxRow(0, 1) = T {1};
     maxRow(1, 0) = T {0};
     maxRow(1, 1) = T {0};
 
-    REQUIRE(ta::findRowWithMaxElement(maxRow, 0, 0) == 0);
-    REQUIRE(ta::findRowWithMaxElement(maxRow, 0, 1) == 1);
+    REQUIRE(math::findRowWithMaxElement(maxRow, 0, 0) == 0);
+    REQUIRE(math::findRowWithMaxElement(maxRow, 0, 1) == 1);
 
     try
     {
-        ta::findRowWithMaxElement(maxRow, 0, 2);
+        math::findRowWithMaxElement(maxRow, 0, 2);
         REQUIRE(false);
     }
     catch (std::exception const& e)
@@ -435,7 +435,7 @@ auto matrix_test() -> void
 
     try
     {
-        ta::findRowWithMaxElement(maxRow, 2, 0);
+        math::findRowWithMaxElement(maxRow, 2, 0);
         REQUIRE(false);
     }
     catch (std::exception const& e)
@@ -444,13 +444,13 @@ auto matrix_test() -> void
         REQUIRE((std::strcmp(e.what(), msg) == 0));
     }
 
-    auto split  = ta::Matrix<T> {2, 2};
+    auto split  = math::Matrix<T> {2, 2};
     split(0, 0) = T {1};
     split(0, 1) = T {1};
     split(1, 0) = T {0};
     split(1, 1) = T {0};
 
-    auto splits = ta::splitColumns(split, 1);
+    auto splits = math::splitColumns(split, 1);
     REQUIRE(splits.first.rows() == 2);
     REQUIRE(splits.first.cols() == 1);
 
@@ -459,7 +459,7 @@ auto matrix_test() -> void
 
     try
     {
-        REQUIRE(ta::splitColumns(split, 2).first.size() == 0);
+        REQUIRE(math::splitColumns(split, 2).first.size() == 0);
         REQUIRE(false);
     }
     catch (std::exception const& e)
@@ -468,16 +468,16 @@ auto matrix_test() -> void
         REQUIRE((std::strcmp(e.what(), msg) == 0));
     }
 
-    auto joinA  = ta::Matrix<T> {2, 2};
+    auto joinA  = math::Matrix<T> {2, 2};
     joinA(0, 0) = T {1};
     joinA(1, 0) = T {1};
     joinA(0, 1) = T {0};
     joinA(1, 1) = T {0};
-    auto joinB  = ta::Matrix<T> {2, 1};
+    auto joinB  = math::Matrix<T> {2, 1};
     joinB(0, 0) = T {1};
     joinB(1, 0) = T {1};
 
-    auto joined = ta::join(joinA, joinB);
+    auto joined = math::join(joinA, joinB);
     REQUIRE(joined.rows() == 2);
     REQUIRE(joined.cols() == 3);
     REQUIRE(joined(0, 0) == T {1});
@@ -489,7 +489,7 @@ auto matrix_test() -> void
 
     try
     {
-        REQUIRE((ta::join(joinA, ta::Matrix<T> {3, 1}).size() == 0));
+        REQUIRE((math::join(joinA, math::Matrix<T> {3, 1}).size() == 0));
         REQUIRE(false);
     }
     catch (std::exception const& e)
@@ -498,14 +498,14 @@ auto matrix_test() -> void
         REQUIRE((std::strcmp(e.what(), msg) == 0));
     }
 
-    auto identityA = ta::Matrix<T> {2, 2};
-    ta::makeIdentity(identityA);
+    auto identityA = math::Matrix<T> {2, 2};
+    math::makeIdentity(identityA);
     identityA(0, 0) = T {1};
     identityA(1, 0) = T {0};
     identityA(0, 1) = T {0};
     identityA(1, 1) = T {1};
 
-    auto identityB  = ta::makeIdentity<T>(3, 3);
+    auto identityB  = math::makeIdentity<T>(3, 3);
     identityB(0, 0) = T {1};
     identityB(1, 0) = T {0};
     identityB(0, 1) = T {0};
@@ -514,8 +514,8 @@ auto matrix_test() -> void
 
     try
     {
-        auto identityC = ta::Matrix<T> {2, 1};
-        ta::makeIdentity(identityC);
+        auto identityC = math::Matrix<T> {2, 1};
+        math::makeIdentity(identityC);
         REQUIRE(false);
     }
     catch (std::exception const& e)
@@ -526,7 +526,7 @@ auto matrix_test() -> void
 
     try
     {
-        REQUIRE(ta::makeIdentity<T>(3, 4).size());
+        REQUIRE(math::makeIdentity<T>(3, 4).size());
         REQUIRE(false);
     }
     catch (std::exception const& e)
