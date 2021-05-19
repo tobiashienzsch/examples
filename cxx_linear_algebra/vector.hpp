@@ -6,6 +6,7 @@
 
 #include <algorithm>
 #include <iterator>
+#include <limits>
 #include <memory>
 #include <numeric>
 #include <ostream>
@@ -19,11 +20,7 @@ namespace detail
 template<typename T>
 [[nodiscard]] auto closeEnough(T a, T b) -> bool
 {
-    if constexpr (std::is_same<T, float>::value)
-    {
-        return std::abs(a - b) < T {1e-9};
-    }
-    return std::abs(a - b) < T {1e-12};
+    return std::abs(a - b) < (std::numeric_limits<T>::epsilon() * T {16});
 }
 }  // namespace detail
 
