@@ -3,7 +3,7 @@
 
 auto matrix_demo() -> void
 {
-    auto mat     = ta::DynamicMatrix<double> {2, 2};
+    auto mat     = ta::Matrix<double> {2, 2};
     mat.at(0, 0) = 1;
     mat.at(1, 1) = 1;
     std::cout << mat << '\n';
@@ -16,7 +16,7 @@ auto matrix_demo() -> void
 
 auto vector_demo() -> void
 {
-    auto vec = ta::DynamicVector<double> {2};
+    auto vec = ta::Vector<double> {2};
     std::cout << vec << '\n';
 }
 

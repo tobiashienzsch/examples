@@ -19,7 +19,7 @@
 template<typename T>
 auto vector_test() -> void
 {
-    auto vec = ta::DynamicVector<T> {2};
+    auto vec = ta::Vector<T> {2};
     REQUIRE(vec.size() == 2);
 
     vec.resize(3);
@@ -44,12 +44,12 @@ auto vector_test() -> void
     REQUIRE(vec[1] == T {2});
     REQUIRE(vec[2] == T {3});
 
-    auto other_size = ta::DynamicVector<T> {};
+    auto other_size = ta::Vector<T> {};
     REQUIRE(other_size.size() == 0);
     REQUIRE(vec != other_size);
     REQUIRE(!(vec == other_size));
 
-    auto same_size = ta::DynamicVector<T> {3};
+    auto same_size = ta::Vector<T> {3};
     REQUIRE(vec != same_size);
     REQUIRE(!(vec == same_size));
 
@@ -115,7 +115,7 @@ auto vector_test() -> void
 
     try
     {
-        auto fail = vec + ta::DynamicVector<T> {5};
+        auto fail = vec + ta::Vector<T> {5};
         REQUIRE(false);
     }
     catch (std::domain_error const& e)
@@ -126,7 +126,7 @@ auto vector_test() -> void
 
     try
     {
-        auto fail = vec - ta::DynamicVector<T> {5};
+        auto fail = vec - ta::Vector<T> {5};
         REQUIRE(false);
     }
     catch (std::domain_error const& e)
@@ -135,8 +135,8 @@ auto vector_test() -> void
         REQUIRE((std::strcmp(e.what(), msg) == 0));
     }
 
-    auto lhs = ta::DynamicVector<T> {2};
-    auto rhs = ta::DynamicVector<T> {2};
+    auto lhs = ta::Vector<T> {2};
+    auto rhs = ta::Vector<T> {2};
     lhs[0]   = T {1};
     lhs[1]   = T {2};
     rhs[0]   = T {1};
@@ -164,7 +164,7 @@ auto vector_test() -> void
 
     try
     {
-        ta::crossProduct(lhs, ta::DynamicVector<T> {16});
+        ta::crossProduct(lhs, ta::Vector<T> {16});
         REQUIRE(false);
     }
     catch (std::domain_error const& e)
@@ -175,7 +175,7 @@ auto vector_test() -> void
 
     try
     {
-        ta::crossProduct(ta::DynamicVector<T> {16}, ta::DynamicVector<T> {16});
+        ta::crossProduct(ta::Vector<T> {16}, ta::Vector<T> {16});
         REQUIRE(false);
     }
     catch (std::domain_error const& e)
@@ -186,7 +186,7 @@ auto vector_test() -> void
 
     try
     {
-        ta::dotProduct(lhs, ta::DynamicVector<T> {16});
+        ta::dotProduct(lhs, ta::Vector<T> {16});
         REQUIRE(false);
     }
     catch (std::domain_error const& e)
@@ -217,7 +217,7 @@ auto vector_test() -> void
 template<typename T>
 auto matrix_test() -> void
 {
-    auto mat = ta::DynamicMatrix<T> {};
+    auto mat = ta::Matrix<T> {};
     REQUIRE(mat.rows() == 0);
     REQUIRE(mat.cols() == 0);
     REQUIRE(mat.size() == 0);
@@ -335,7 +335,7 @@ auto matrix_test() -> void
     REQUIRE(sub_matrix(1, 0) == T {4});
     REQUIRE(sub_matrix(1, 1) == T {4});
 
-    REQUIRE(sub_matrix != ta::DynamicMatrix<T> {});
+    REQUIRE(sub_matrix != ta::Matrix<T> {});
 
     mat.clear();
     REQUIRE(mat(0, 0) == T {0});
@@ -345,7 +345,7 @@ auto matrix_test() -> void
 
     try
     {
-        auto swap  = ta::DynamicMatrix<T> {2, 2};
+        auto swap  = ta::Matrix<T> {2, 2};
         swap(0, 0) = T {0};
         swap(0, 1) = T {0};
         swap(1, 0) = T {1};
@@ -368,7 +368,7 @@ auto matrix_test() -> void
 
     try
     {
-        auto multi  = ta::DynamicMatrix<T> {2, 2};
+        auto multi  = ta::Matrix<T> {2, 2};
         multi(0, 0) = T {0};
         multi(0, 1) = T {0};
         multi(1, 0) = T {1};
@@ -392,7 +392,7 @@ auto matrix_test() -> void
 
     try
     {
-        auto multiAdd  = ta::DynamicMatrix<T> {2, 2};
+        auto multiAdd  = ta::Matrix<T> {2, 2};
         multiAdd(0, 0) = T {0};
         multiAdd(0, 1) = T {0};
         multiAdd(1, 0) = T {1};
@@ -413,7 +413,7 @@ auto matrix_test() -> void
         REQUIRE((std::strcmp(e.what(), msg) == 0));
     }
 
-    auto maxRow  = ta::DynamicMatrix<T> {2, 2};
+    auto maxRow  = ta::Matrix<T> {2, 2};
     maxRow(0, 0) = T {1};
     maxRow(0, 1) = T {1};
     maxRow(1, 0) = T {0};
@@ -444,7 +444,7 @@ auto matrix_test() -> void
         REQUIRE((std::strcmp(e.what(), msg) == 0));
     }
 
-    auto split  = ta::DynamicMatrix<T> {2, 2};
+    auto split  = ta::Matrix<T> {2, 2};
     split(0, 0) = T {1};
     split(0, 1) = T {1};
     split(1, 0) = T {0};
@@ -468,12 +468,12 @@ auto matrix_test() -> void
         REQUIRE((std::strcmp(e.what(), msg) == 0));
     }
 
-    auto joinA  = ta::DynamicMatrix<T> {2, 2};
+    auto joinA  = ta::Matrix<T> {2, 2};
     joinA(0, 0) = T {1};
     joinA(1, 0) = T {1};
     joinA(0, 1) = T {0};
     joinA(1, 1) = T {0};
-    auto joinB  = ta::DynamicMatrix<T> {2, 1};
+    auto joinB  = ta::Matrix<T> {2, 1};
     joinB(0, 0) = T {1};
     joinB(1, 0) = T {1};
 
@@ -489,7 +489,7 @@ auto matrix_test() -> void
 
     try
     {
-        REQUIRE((ta::join(joinA, ta::DynamicMatrix<T> {3, 1}).size() == 0));
+        REQUIRE((ta::join(joinA, ta::Matrix<T> {3, 1}).size() == 0));
         REQUIRE(false);
     }
     catch (std::exception const& e)

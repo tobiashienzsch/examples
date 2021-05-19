@@ -14,14 +14,14 @@
 namespace ta
 {
 template<typename T>
-struct DynamicVector
+struct Vector
 {
     using value_type = T;
     using size_type  = std::uint32_t;
 
-    DynamicVector() noexcept = default;
-    explicit DynamicVector(size_type size);
-    DynamicVector(DynamicVector<T> const& other);
+    Vector() noexcept = default;
+    explicit Vector(size_type size);
+    Vector(Vector<T> const& other);
 
     auto clear() noexcept -> void;
     auto resize(size_type size) -> void;
@@ -40,57 +40,50 @@ private:
 };
 
 template<typename T>
-auto operator==(DynamicVector<T> const& l, DynamicVector<T> const& r) -> bool;
+auto operator==(Vector<T> const& l, Vector<T> const& r) -> bool;
 
 template<typename T>
-auto operator!=(DynamicVector<T> const& l, DynamicVector<T> const& r) -> bool;
+auto operator!=(Vector<T> const& l, Vector<T> const& r) -> bool;
 
 template<typename T>
-auto operator+(DynamicVector<T> const& l, DynamicVector<T> const& r)
-    -> DynamicVector<T>;
+auto operator+(Vector<T> const& l, Vector<T> const& r) -> Vector<T>;
 
 template<typename T>
-auto operator-(DynamicVector<T> const& l, DynamicVector<T> const& r)
-    -> DynamicVector<T>;
+auto operator-(Vector<T> const& l, Vector<T> const& r) -> Vector<T>;
 
 template<typename T>
-auto operator*(DynamicVector<T> const& vec, T const& scaler)
-    -> DynamicVector<T>;
+auto operator*(Vector<T> const& vec, T const& scaler) -> Vector<T>;
 
 template<typename T>
-auto operator*(T const& scaler, DynamicVector<T> const& vec)
-    -> DynamicVector<T>;
+auto operator*(T const& scaler, Vector<T> const& vec) -> Vector<T>;
 
 template<typename T>
-auto operator<<(std::ostream& out, DynamicVector<T> const& vec)
-    -> std::ostream&;
+auto operator<<(std::ostream& out, Vector<T> const& vec) -> std::ostream&;
 
 template<typename T>
-auto dotProduct(DynamicVector<T> const& l, DynamicVector<T> const& r) -> T;
+auto dotProduct(Vector<T> const& l, Vector<T> const& r) -> T;
 
 template<typename T>
-auto crossProduct(DynamicVector<T> const& l, DynamicVector<T> const& r)
-    -> DynamicVector<T>;
+auto crossProduct(Vector<T> const& l, Vector<T> const& r) -> Vector<T>;
 
 template<typename T>
-auto norm(DynamicVector<T> const& vec) noexcept ->
-    typename DynamicVector<T>::value_type;
+auto norm(Vector<T> const& vec) noexcept -> typename Vector<T>::value_type;
 
 template<typename T>
-auto normalized(DynamicVector<T> const& vec) noexcept -> DynamicVector<T>;
+auto normalized(Vector<T> const& vec) noexcept -> Vector<T>;
 
 template<typename T>
-auto normalize(DynamicVector<T>& vec) noexcept -> void;
+auto normalize(Vector<T>& vec) noexcept -> void;
 
 // IMPLEMENTATION
 template<typename T>
-DynamicVector<T>::DynamicVector(size_type size)
+Vector<T>::Vector(size_type size)
 {
     resize(size);
 }
 
 template<typename T>
-DynamicVector<T>::DynamicVector(DynamicVector<T> const& other)
+Vector<T>::Vector(Vector<T> const& other)
 {
     resize(other.size());
     auto const* ptr = other.data_.get();
@@ -98,13 +91,13 @@ DynamicVector<T>::DynamicVector(DynamicVector<T> const& other)
 }
 
 template<typename T>
-auto DynamicVector<T>::clear() noexcept -> void
+auto Vector<T>::clear() noexcept -> void
 {
     std::fill(data_.get(), std::next(data_.get(), size()), value_type {});
 }
 
 template<typename T>
-auto DynamicVector<T>::resize(size_type size) -> void
+auto Vector<T>::resize(size_type size) -> void
 {
     size_ = size;
     data_ = std::make_unique<value_type[]>(this->size());  // NOLINT
@@ -112,13 +105,13 @@ auto DynamicVector<T>::resize(size_type size) -> void
 }
 
 template<typename T>
-auto DynamicVector<T>::size() const noexcept -> size_type
+auto Vector<T>::size() const noexcept -> size_type
 {
     return size_;
 }
 
 template<typename T>
-auto DynamicVector<T>::at(size_type idx) -> value_type&
+auto Vector<T>::at(size_type idx) -> value_type&
 {
     if (idx >= size())
     {
@@ -128,7 +121,7 @@ auto DynamicVector<T>::at(size_type idx) -> value_type&
 }
 
 template<typename T>
-auto DynamicVector<T>::at(size_type idx) const -> value_type const&
+auto Vector<T>::at(size_type idx) const -> value_type const&
 {
     if (idx >= size())
     {
@@ -138,25 +131,25 @@ auto DynamicVector<T>::at(size_type idx) const -> value_type const&
 }
 
 template<typename T>
-auto DynamicVector<T>::operator[](size_type idx) -> value_type&
+auto Vector<T>::operator[](size_type idx) -> value_type&
 {
     return data_[idx];
 }
 
 template<typename T>
-auto DynamicVector<T>::operator[](size_type idx) const -> value_type const&
+auto Vector<T>::operator[](size_type idx) const -> value_type const&
 {
     return data_[idx];
 }
 
 template<typename T>
-auto operator==(DynamicVector<T> const& l, DynamicVector<T> const& r) -> bool
+auto operator==(Vector<T> const& l, Vector<T> const& r) -> bool
 {
     if (l.size() != r.size())
     {
         return false;
     }
-    using size_type = typename DynamicVector<T>::size_type;
+    using size_type = typename Vector<T>::size_type;
     for (size_type i = 0; i < l.size(); ++i)
     {
         if (l[i] != r[i])
@@ -168,21 +161,20 @@ auto operator==(DynamicVector<T> const& l, DynamicVector<T> const& r) -> bool
 }
 
 template<typename T>
-auto operator!=(DynamicVector<T> const& l, DynamicVector<T> const& r) -> bool
+auto operator!=(Vector<T> const& l, Vector<T> const& r) -> bool
 {
     return !(l == r);
 }
 
 template<typename T>
-auto operator+(DynamicVector<T> const& l, DynamicVector<T> const& r)
-    -> DynamicVector<T>
+auto operator+(Vector<T> const& l, Vector<T> const& r) -> Vector<T>
 {
     if (l.size() != r.size())
     {
         throw std::domain_error("vectors need to be the same size");
     }
 
-    auto result = DynamicVector<T> {l.size()};
+    auto result = Vector<T> {l.size()};
     for (decltype(l.size()) i = 0; i < l.size(); ++i)
     {
         result[i] = l[i] + r[i];
@@ -191,15 +183,14 @@ auto operator+(DynamicVector<T> const& l, DynamicVector<T> const& r)
 }
 
 template<typename T>
-auto operator-(DynamicVector<T> const& l, DynamicVector<T> const& r)
-    -> DynamicVector<T>
+auto operator-(Vector<T> const& l, Vector<T> const& r) -> Vector<T>
 {
     if (l.size() != r.size())
     {
         throw std::domain_error("vectors need to be the same size");
     }
 
-    auto result = DynamicVector<T> {l.size()};
+    auto result = Vector<T> {l.size()};
     for (decltype(l.size()) i = 0; i < l.size(); ++i)
     {
         result[i] = l[i] - r[i];
@@ -208,9 +199,9 @@ auto operator-(DynamicVector<T> const& l, DynamicVector<T> const& r)
 }
 
 template<typename T>
-auto operator*(DynamicVector<T> const& vec, T const& scaler) -> DynamicVector<T>
+auto operator*(Vector<T> const& vec, T const& scaler) -> Vector<T>
 {
-    auto result = DynamicVector<T> {vec.size()};
+    auto result = Vector<T> {vec.size()};
     for (decltype(vec.size()) i = 0; i < vec.size(); ++i)
     {
         result[i] = vec[i] * scaler;
@@ -219,15 +210,15 @@ auto operator*(DynamicVector<T> const& vec, T const& scaler) -> DynamicVector<T>
 }
 
 template<typename T>
-auto operator*(T const& scaler, DynamicVector<T> const& vec) -> DynamicVector<T>
+auto operator*(T const& scaler, Vector<T> const& vec) -> Vector<T>
 {
     return vec * scaler;
 }
 
 template<typename T>
-auto operator<<(std::ostream& out, DynamicVector<T> const& vec) -> std::ostream&
+auto operator<<(std::ostream& out, Vector<T> const& vec) -> std::ostream&
 {
-    using size_type = typename DynamicVector<T>::size_type;
+    using size_type = typename Vector<T>::size_type;
     for (size_type i = 0; i < vec.size(); ++i)
     {
         out << vec[i] << ' ';
@@ -236,7 +227,7 @@ auto operator<<(std::ostream& out, DynamicVector<T> const& vec) -> std::ostream&
 }
 
 template<typename T>
-auto dotProduct(DynamicVector<T> const& l, DynamicVector<T> const& r) -> T
+auto dotProduct(Vector<T> const& l, Vector<T> const& r) -> T
 {
     if (l.size() != r.size())
     {
@@ -244,7 +235,7 @@ auto dotProduct(DynamicVector<T> const& l, DynamicVector<T> const& r) -> T
     }
 
     auto result     = T {};
-    using size_type = typename DynamicVector<T>::size_type;
+    using size_type = typename Vector<T>::size_type;
     for (size_type i = 0; i < l.size(); ++i)
     {
         result += l[i] * r[i];
@@ -254,8 +245,7 @@ auto dotProduct(DynamicVector<T> const& l, DynamicVector<T> const& r) -> T
 }
 
 template<typename T>
-auto crossProduct(DynamicVector<T> const& l, DynamicVector<T> const& r)
-    -> DynamicVector<T>
+auto crossProduct(Vector<T> const& l, Vector<T> const& r) -> Vector<T>
 {
     if (l.size() != r.size())
     {
@@ -266,7 +256,7 @@ auto crossProduct(DynamicVector<T> const& l, DynamicVector<T> const& r)
         throw std::domain_error("only 3-dimensional vector supported");
     }
 
-    auto result = DynamicVector<T> {l.size()};
+    auto result = Vector<T> {l.size()};
     result[0]   = (l[1] * r[2]) - (l[2] * r[1]);
     result[1]   = (l[0] * r[2]) - (l[2] * r[0]);
     result[2]   = (l[0] * r[1]) - (l[1] * r[0]);
@@ -274,10 +264,9 @@ auto crossProduct(DynamicVector<T> const& l, DynamicVector<T> const& r)
 }
 
 template<typename T>
-auto norm(DynamicVector<T> const& vec) noexcept ->
-    typename DynamicVector<T>::value_type
+auto norm(Vector<T> const& vec) noexcept -> typename Vector<T>::value_type
 {
-    using value_type = typename DynamicVector<T>::value_type;
+    using value_type = typename Vector<T>::value_type;
     auto sum         = value_type {};
     for (decltype(vec.size()) i = 0; i < vec.size(); ++i)
     {
@@ -287,16 +276,16 @@ auto norm(DynamicVector<T> const& vec) noexcept ->
 }
 
 template<typename T>
-auto normalized(DynamicVector<T> const& vec) noexcept -> DynamicVector<T>
+auto normalized(Vector<T> const& vec) noexcept -> Vector<T>
 {
-    using value_type = typename DynamicVector<T>::value_type;
-    return DynamicVector<T> {vec} * (value_type {1} / norm(vec));
+    using value_type = typename Vector<T>::value_type;
+    return Vector<T> {vec} * (value_type {1} / norm(vec));
 }
 
 template<typename T>
-auto normalize(DynamicVector<T>& vec) noexcept -> void
+auto normalize(Vector<T>& vec) noexcept -> void
 {
-    using value_type = typename DynamicVector<T>::value_type;
+    using value_type = typename Vector<T>::value_type;
     auto const n     = norm(vec);
     for (decltype(vec.size()) i = 0; i < vec.size(); ++i)
     {
