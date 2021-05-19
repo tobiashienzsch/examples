@@ -147,6 +147,9 @@ auto isRowEchelon(Matrix<T> const& mat) -> bool;
 template<typename T>
 auto rowEchelon(Matrix<T>& mat) -> void;
 
+template<typename T>
+auto rank(Matrix<T> const& mat) -> typename Matrix<T>::size_type;
+
 /// IMPLEMENTATON
 ///////////////////////////////////////////////////////////////////////////
 template<typename T>
@@ -800,5 +803,41 @@ auto rowEchelon(Matrix<T>& mat) -> void
         completed = isRowEchelon(mat);
         count += 1;
     }
+}
+
+template<typename T>
+auto rank(Matrix<T> const& mat) -> typename Matrix<T>::size_type
+{
+    using size_type = typename Matrix<T>::size_type;
+
+    auto copy = Matrix<T> {mat};
+    rowEchelon(copy);
+
+    auto numNonZeroRows = size_type {};
+    if (!isRowEchelon(copy))
+    {
+    }
+    else
+    {
+        for (decltype(copy.rows()) row = size_type {0}; row < copy.rows();
+             ++row)
+        {
+            auto colSum = size_type {};
+            for (decltype(copy.cols()) col = 0; col < copy.cols(); ++col)
+            {
+                if (!detail::closeEnough(copy(row, col), T {}))
+                {
+                    colSum++;
+                }
+            }
+
+            if (colSum > 0)
+            {
+                numNonZeroRows++;
+            }
+        }
+    }
+
+    return numNonZeroRows;
 }
 }  // namespace math

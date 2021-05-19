@@ -616,6 +616,7 @@ auto matrix_test() -> void
     A(2, 3) = T {-6};
     math::rowEchelon(A);
     REQUIRE(math::isRowEchelon(A));
+    REQUIRE(math::rank(A) == 3);
 }
 
 template<typename T>
