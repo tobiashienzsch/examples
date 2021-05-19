@@ -1,6 +1,5 @@
 #pragma once
 
-#include "compare.hpp"
 #include "vector.hpp"
 
 #include <cstddef>

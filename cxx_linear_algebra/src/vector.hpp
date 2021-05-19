@@ -1,12 +1,12 @@
 #pragma once
 
-#include <cmath>
+#include "vector.hpp"
+
 #include <cstddef>
 #include <cstdint>
 
 #include <algorithm>
 #include <iterator>
-#include <limits>
 #include <memory>
 #include <numeric>
 #include <ostream>
@@ -14,15 +14,6 @@
 
 namespace math
 {
-
-namespace detail
-{
-template<typename T>
-[[nodiscard]] auto closeEnough(T a, T b) -> bool
-{
-    return std::abs(a - b) < (std::numeric_limits<T>::epsilon() * T {16});
-}
-}  // namespace detail
 
 template<typename T>
 struct Vector
