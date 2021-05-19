@@ -20,7 +20,7 @@ struct DynamicVector
     using size_type  = std::uint32_t;
 
     DynamicVector() noexcept = default;
-    DynamicVector(size_type size);
+    explicit DynamicVector(size_type size);
     DynamicVector(DynamicVector<T> const& other);
 
     auto clear() noexcept -> void;
@@ -86,10 +86,9 @@ DynamicVector<T>::DynamicVector(size_type size)
 template<typename T>
 DynamicVector<T>::DynamicVector(DynamicVector<T> const& other)
 {
-    data_ = std::make_unique<value_type[]>(other.size());  // NOLINT
-    size_ = other.size();
-    std::copy(other.data_.get(), std::next(other.data_.get(), size()),
-              data_.get());
+    resize(other.size());
+    auto const* ptr = other.data_.get();
+    std::copy(ptr, std::next(ptr, size()), data_.get());
 }
 
 template<typename T>
@@ -140,12 +139,20 @@ auto DynamicVector<T>::normalize() const noexcept -> void
 template<typename T>
 auto DynamicVector<T>::at(size_type idx) -> value_type&
 {
+    if (idx >= size())
+    {
+        throw std::out_of_range("index out of bounds");
+    }
     return data_[idx];
 }
 
 template<typename T>
 auto DynamicVector<T>::at(size_type idx) const -> value_type const&
 {
+    if (idx >= size())
+    {
+        throw std::out_of_range("index out of bounds");
+    }
     return data_[idx];
 }
 
