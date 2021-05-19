@@ -661,10 +661,42 @@ auto linear_solve_test() -> void
     b[2]   = T {-6};
 
     auto result = math::linearSolve(A, b);
-    REQUIRE(result.size() == 3);
-    REQUIRE(math::detail::closeEnough(result[0], T {4}));
-    REQUIRE(math::detail::closeEnough(result[1], T {1}));
-    REQUIRE(math::detail::closeEnough(result[2], T {-6}));
+    REQUIRE(result.vec.size() == 3);
+    REQUIRE(result.success == math::LinearSolveSolution::Unique);
+    REQUIRE(math::detail::closeEnough(result.vec[0], T {4}));
+    REQUIRE(math::detail::closeEnough(result.vec[1], T {1}));
+    REQUIRE(math::detail::closeEnough(result.vec[2], T {-6}));
+
+    A.clear();
+    b.clear();
+    A(0, 0) = T {1};
+    A(0, 1) = T {0};
+    A(0, 2) = T {0};
+    A(1, 0) = T {0};
+    A(1, 1) = T {1};
+    A(1, 2) = T {0};
+    A(2, 0) = T {1};
+    A(2, 1) = T {1};
+    A(2, 2) = T {0};
+    result  = math::linearSolve(A, b);
+    REQUIRE(result.success == math::LinearSolveSolution::NoUnique);
+
+    A.clear();
+    b.clear();
+    A(0, 0) = T {1};
+    A(0, 1) = T {0};
+    A(0, 2) = T {0};
+    A(1, 0) = T {1};
+    A(1, 1) = T {0};
+    A(1, 2) = T {0};
+    A(2, 0) = T {1};
+    A(2, 1) = T {0};
+    A(2, 2) = T {0};
+    b[0]    = T {0};
+    b[1]    = T {-1};
+    b[2]    = T {1};
+    result  = math::linearSolve(A, b);
+    REQUIRE(result.success == math::LinearSolveSolution::None);
 }
 
 auto main() -> int

@@ -34,6 +34,8 @@ struct Vector
     explicit Vector(size_type size);
     Vector(Vector<T> const& other);
 
+    auto operator=(Vector<T> const& other) -> Vector<T>&;
+
     auto clear() noexcept -> void;
     auto resize(size_type size) -> void;
 
@@ -96,9 +98,16 @@ Vector<T>::Vector(size_type size)
 template<typename T>
 Vector<T>::Vector(Vector<T> const& other)
 {
+    (*this) = other;
+}
+
+template<typename T>
+auto Vector<T>::operator=(Vector<T> const& other) -> Vector<T>&
+{
     resize(other.size());
     auto const* ptr = other.data_.get();
     std::copy(ptr, std::next(ptr, size()), data_.get());
+    return *this;
 }
 
 template<typename T>
