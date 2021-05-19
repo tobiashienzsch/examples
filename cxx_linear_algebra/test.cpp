@@ -537,7 +537,27 @@ auto matrix_test() -> void
         REQUIRE((std::strcmp(e.what(), msg) == 0));
     }
 
-    math::inverse(math::makeIdentity<T>(2));
+    auto invertA  = math::Matrix<T> {3, 3};
+    invertA(0, 0) = T {2};
+    invertA(0, 1) = T {1};
+    invertA(0, 2) = T {1};
+    invertA(1, 0) = T {1};
+    invertA(1, 1) = T {0};
+    invertA(1, 2) = T {1};
+    invertA(2, 0) = T {0};
+    invertA(2, 1) = T {3};
+    invertA(2, 2) = T {1};
+
+    auto const invA = math::inverse(invertA);
+    REQUIRE(invA(0, 0) == T {0.75});
+    REQUIRE(invA(0, 1) == T {-0.5});
+    REQUIRE(invA(0, 2) == T {-0.25});
+    REQUIRE(invA(1, 0) == T {0.25});
+    REQUIRE(invA(1, 1) == T {-0.5});
+    REQUIRE(invA(1, 2) == T {0.25});
+    REQUIRE(invA(2, 0) == T {-0.75});
+    REQUIRE(invA(2, 1) == T {1.5});
+    REQUIRE(invA(2, 2) == T {0.25});
 }
 
 auto main() -> int

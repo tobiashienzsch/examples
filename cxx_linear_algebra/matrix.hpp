@@ -23,6 +23,8 @@ struct Matrix
     Matrix(size_type rows, size_type cols);
     Matrix(Matrix<T> const& other);
 
+    auto operator=(Matrix<T> const& other) -> Matrix<T>&;
+
     auto clear() noexcept -> void;
     auto resize(size_type rows, size_type cols) -> void;
 
@@ -93,6 +95,9 @@ template<typename T>
 auto operator<<(std::ostream& out, Matrix<T> const& mat) -> std::ostream&;
 
 template<typename T>
+auto compareEqual(Matrix<T> const& l, Matrix<T> const& r) -> bool;
+
+template<typename T>
 auto isSquare(Matrix<T> const& mat) -> bool;
 
 template<typename T>
@@ -140,9 +145,16 @@ Matrix<T>::Matrix(size_type row, size_type col)
 template<typename T>
 Matrix<T>::Matrix(Matrix<T> const& other)
 {
+    (*this) = other;
+}
+
+template<typename T>
+auto Matrix<T>::operator=(Matrix<T> const& other) -> Matrix<T>&
+{
     resize(other.rows(), other.cols());
     auto const* ptr = other.data_.get();
     std::copy(ptr, std::next(ptr, size()), data_.get());
+    return *this;
 }
 
 template<typename T>
@@ -575,26 +587,98 @@ auto makeIdentity(Matrix<T>& mat) -> void
 template<typename T>
 auto inverse(Matrix<T> const& mat) -> Matrix<T>
 {
+    using size_type  = typename Matrix<T>::size_type;
+    auto closeEnough = [](T a, T b) { return std::abs(a - b) < T {1e-9}; };
+
     if (!isSquare(mat))
     {
         throw std::invalid_argument("matrix must be square");
     }
 
-    using size_type = typename Matrix<T>::size_type;
-    auto identity   = makeIdentity<T>(mat.rows());
-    auto augment    = join(mat, identity);
+    static constexpr auto maxLoopCount = size_type {100};
 
-    for (auto diagIdx = size_type {0}; diagIdx < augment.rows(); ++diagIdx)
+    auto const identity = makeIdentity<T>(mat.rows());
+    auto augment        = join(mat, identity);
+
+    auto count     = size_type {0};
+    auto completed = false;
+
+    auto cRow = size_type {};
+    auto cCol = size_type {};
+
+    auto result = Matrix<T> {mat.rows(), mat.cols()};
+    while ((!completed) && (count < maxLoopCount))
     {
-        auto cRow = diagIdx;
-        auto cCol = diagIdx;
-        auto r    = findRowWithMaxElement(augment, cCol, cRow);
-        if (r == cRow)
+        for (auto diagIdx = size_type {0}; diagIdx < augment.rows(); ++diagIdx)
         {
+            cRow = diagIdx;
+            cCol = diagIdx;
+
+            if (auto maxRowIdx = findRowWithMaxElement(augment, cCol, cRow);
+                maxRowIdx != cRow)
+            {
+                swapRow(augment, cRow, maxRowIdx);
+            }
+
+            if (augment(cRow, cCol) != T {1})
+            {
+                auto factor = T {1} / augment(cRow, cCol);
+                multiplyRow(augment, cRow, factor);
+            }
+
+            for (auto rowIdx = cRow + 1; rowIdx < augment.rows(); ++rowIdx)
+            {
+                auto rowOneIndex  = cCol;
+                auto currentValue = augment(rowIdx, cCol);
+                auto rowOneValue  = augment(rowOneIndex, cCol);
+
+                if (!closeEnough(rowOneValue, T {}))
+                {
+                    auto correction = -(currentValue / rowOneValue);
+                    multiplyAddRow(augment, rowOneIndex, rowIdx, correction);
+                }
+            }
+
+            for (auto colIdx = cCol + 1; colIdx < mat.cols(); ++colIdx)
+            {
+                if (!closeEnough(augment(cRow, colIdx), T {}))
+                {
+                    auto rowOneIndex  = colIdx;
+                    auto currentValue = augment(cRow, colIdx);
+                    auto rowOneValue  = augment(rowOneIndex, colIdx);
+
+                    if (!closeEnough(rowOneValue, T {}))
+                    {
+                        auto correction = -(currentValue / rowOneValue);
+                        multiplyAddRow(augment, rowOneIndex, cRow, correction);
+                    }
+                }
+            }
         }
+
+        auto splits = splitColumns(augment, mat.cols());
+        if (compareEqual(splits.first, identity))
+        {
+            completed = true;
+            result    = splits.second;
+        }
+
+        count += 1;
     }
 
-    return {};
+    return result;
+}
+
+template<typename T>
+auto compareEqual(Matrix<T> const& l, Matrix<T> const& r) -> bool
+{
+    if ((l.rows() != r.rows()) || (l.cols() != r.cols()))
+    {
+        return false;
+    }
+    auto closeEnough = [](T a, T b) { return std::abs(a - b) < T {1e-9}; };
+    return std::equal(l.data(), std::next(l.data(), l.size()), r.data(),
+                      closeEnough);
 }
 
 }  // namespace math
