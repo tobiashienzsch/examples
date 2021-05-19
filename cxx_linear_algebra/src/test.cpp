@@ -585,30 +585,6 @@ auto matrix_functions_test() -> void
     REQUIRE(math::isRowEchelon(math::makeIdentity<T>(6)));
     REQUIRE(math::isRowEchelon(math::makeIdentity<T>(7)));
 
-    auto id2 = math::makeIdentity<T>(2);
-    math::rowEchelon(id2);
-    REQUIRE(math::isRowEchelon(id2));
-
-    auto id3 = math::makeIdentity<T>(3);
-    math::rowEchelon(id3);
-    REQUIRE(math::isRowEchelon(id3));
-
-    auto id4 = math::makeIdentity<T>(4);
-    math::rowEchelon(id4);
-    REQUIRE(math::isRowEchelon(id4));
-
-    auto id5 = math::makeIdentity<T>(5);
-    math::rowEchelon(id5);
-    REQUIRE(math::isRowEchelon(id5));
-
-    auto id6 = math::makeIdentity<T>(6);
-    math::rowEchelon(id6);
-    REQUIRE(math::isRowEchelon(id6));
-
-    auto id7 = math::makeIdentity<T>(7);
-    math::rowEchelon(id7);
-    REQUIRE(math::isRowEchelon(id7));
-
     auto A  = math::Matrix<T> {3, 4};
     A(0, 0) = T {1};
     A(0, 1) = T {3};
