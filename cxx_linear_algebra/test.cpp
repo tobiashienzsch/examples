@@ -222,12 +222,14 @@ auto matrix_test() -> void
     REQUIRE(mat.rows() == 0);
     REQUIRE(mat.cols() == 0);
     REQUIRE(mat.size() == 0);
+    REQUIRE(!math::isNonZero(mat));
 
     mat.resize(2, 2);
     REQUIRE(mat.rows() == 2);
     REQUIRE(mat.cols() == 2);
     REQUIRE(mat.size() == 4);
 
+    REQUIRE(!math::isNonZero(mat));
     REQUIRE(mat.at(0, 0) == T {0});
     REQUIRE(mat.at(0, 1) == T {0});
     REQUIRE(mat.at(1, 0) == T {0});
@@ -287,6 +289,8 @@ auto matrix_test() -> void
     mat(0, 1) = T {1};
     mat(1, 0) = T {2};
     mat(1, 1) = T {3};
+
+    REQUIRE(math::isNonZero(mat));
 
     auto stream = std::stringstream {};
     stream << mat;
@@ -617,6 +621,20 @@ auto matrix_test() -> void
     math::rowEchelon(A);
     REQUIRE(math::isRowEchelon(A));
     REQUIRE(math::rank(A) == 3);
+    REQUIRE(math::isNonZero(A));
+
+    A.resize(3, 3);
+    A(0, 0) = T {0};
+    A(0, 1) = T {0};
+    A(0, 2) = T {1};
+    A(1, 0) = T {1};
+    A(1, 1) = T {0};
+    A(1, 2) = T {1};
+    A(2, 0) = T {0};
+    A(2, 1) = T {0};
+    A(2, 2) = T {1};
+    REQUIRE(math::rank(A) == 2);
+    REQUIRE(math::isNonZero(A));
 }
 
 template<typename T>

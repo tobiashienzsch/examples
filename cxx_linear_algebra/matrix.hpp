@@ -9,6 +9,7 @@
 #include <iostream>
 #include <iterator>
 #include <memory>
+#include <vector>
 
 namespace math
 {
@@ -140,6 +141,9 @@ auto subMatrix(Matrix<T> const& mat, typename Matrix<T>::size_type rowIdx,
 
 template<typename T>
 auto determinant(Matrix<T> const& mat) -> typename Matrix<T>::value_type;
+
+template<typename T>
+auto isNonZero(Matrix<T> const& mat) -> bool;
 
 template<typename T>
 auto isRowEchelon(Matrix<T> const& mat) -> bool;
@@ -745,6 +749,22 @@ auto determinant(Matrix<T> const& mat) -> typename Matrix<T>::value_type
 }
 
 template<typename T>
+auto isNonZero(Matrix<T> const& mat) -> bool
+{
+    for (decltype(mat.rows()) row {0}; row < mat.rows(); ++row)
+    {
+        for (decltype(mat.cols()) col {0}; col < mat.cols(); ++col)
+        {
+            if (!detail::closeEnough(mat(row, col), T {}))
+            {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+template<typename T>
 auto isRowEchelon(Matrix<T> const& mat) -> bool
 {
     auto sum = T {};
@@ -816,6 +836,39 @@ auto rank(Matrix<T> const& mat) -> typename Matrix<T>::size_type
     auto numNonZeroRows = size_type {};
     if (!isRowEchelon(copy))
     {
+        auto subMatricies = std::vector<Matrix<T>> {};
+        subMatricies.push_back(mat);
+
+        auto completed      = false;
+        auto subMatrixCount = size_type {};
+        while ((subMatrixCount < subMatricies.size()) && (!completed))
+        {
+            auto cur = subMatricies[subMatrixCount];
+            subMatrixCount++;
+
+            if (isNonZero(cur))
+            {
+                if (!detail::closeEnough(determinant(cur), T {}))
+                {
+                    completed      = true;
+                    numNonZeroRows = cur.rows();
+                }
+                else
+                {
+                    if ((cur.rows() > 2) && (cur.cols() > 2))
+                    {
+                        for (auto i = size_type {0}; i < cur.rows(); ++i)
+                        {
+                            for (auto j = size_type {0}; j < cur.cols(); ++j)
+                            {
+                                auto sub = subMatrix(cur, i, j);
+                                subMatricies.push_back(sub);
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
     else
     {
