@@ -42,8 +42,6 @@ struct Matrix
     [[nodiscard]] auto operator()(size_type row, size_type col) const
         -> value_type const&;
 
-    [[nodiscard]] auto data() const noexcept -> value_type const*;
-
 private:
     [[nodiscard]] auto subscriptToIndex(size_type row,
                                         size_type col) const noexcept
@@ -255,19 +253,23 @@ auto Matrix<T>::operator()(size_type row, size_type col) const
 }
 
 template<typename T>
-auto Matrix<T>::data() const noexcept -> value_type const*
-{
-    return data_.get();
-}
-
-template<typename T>
 auto operator==(Matrix<T> const& l, Matrix<T> const& r) -> bool
 {
     if ((l.rows() != r.rows()) || (l.cols() != r.cols()))
     {
         return false;
     }
-    return std::equal(l.data(), std::next(l.data(), l.size()), r.data());
+    for (decltype(l.rows()) row = 0; row < l.rows(); ++row)
+    {
+        for (decltype(l.cols()) col = 0; col < l.cols(); ++col)
+        {
+            if (l(row, col) != r(row, col))
+            {
+                return false;
+            }
+        }
+    }
+    return true;
 }
 
 template<typename T>
@@ -698,7 +700,18 @@ auto compareEqual(Matrix<T> const& l, Matrix<T> const& r) -> bool
     }
 
     auto cmp = [](auto a, auto b) { return closeEnough(a, b); };
-    return std::equal(l.data(), std::next(l.data(), l.size()), r.data(), cmp);
+    for (decltype(l.rows()) row = 0; row < l.rows(); ++row)
+    {
+        for (decltype(l.cols()) col = 0; col < l.cols(); ++col)
+        {
+            if (!cmp(l(row, col), r(row, col)))
+            {
+                return false;
+            }
+        }
+    }
+
+    return true;
 }
 
 template<typename T>
