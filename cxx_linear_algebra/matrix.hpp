@@ -21,6 +21,7 @@ struct DynamicMatrix
 
     DynamicMatrix() noexcept = default;
     DynamicMatrix(size_type rows, size_type cols);
+    DynamicMatrix(DynamicMatrix<T> const& other);
 
     auto clear() noexcept -> void;
     auto resize(size_type rows, size_type cols) -> void;
@@ -31,6 +32,10 @@ struct DynamicMatrix
 
     [[nodiscard]] auto at(size_type row, size_type col) -> value_type&;
     [[nodiscard]] auto at(size_type row, size_type col) const
+        -> value_type const&;
+
+    [[nodiscard]] auto operator()(size_type row, size_type col) -> value_type&;
+    [[nodiscard]] auto operator()(size_type row, size_type col) const
         -> value_type const&;
 
     [[nodiscard]] auto data() noexcept -> value_type*;
@@ -93,11 +98,49 @@ template<typename T>
 auto operator<<(std::ostream& out, DynamicMatrix<T> const& mat)
     -> std::ostream&;
 
-/// IMPL
+template<typename T>
+auto swapRow(DynamicMatrix<T>& mat, typename DynamicMatrix<T>::size_type a,
+             typename DynamicMatrix<T>::size_type b) -> void;
+
+template<typename T>
+auto multiplyRow(DynamicMatrix<T>& mat,
+                 typename DynamicMatrix<T>::size_type row, T factor) -> void;
+
+template<typename T>
+auto multiplyAddRow(DynamicMatrix<T>& mat,
+                    typename DynamicMatrix<T>::size_type source,
+                    typename DynamicMatrix<T>::size_type dest, T factor)
+    -> void;
+
+template<typename T>
+auto findRowWithMaxElement(DynamicMatrix<T> const& mat,
+                           typename DynamicMatrix<T>::size_type col,
+                           typename DynamicMatrix<T>::size_type startRow) ->
+    typename DynamicMatrix<T>::size_type;
+
+template<typename T>
+auto join(DynamicMatrix<T> const& a, DynamicMatrix<T> const& b)
+    -> DynamicMatrix<T>;
+
+template<typename T>
+auto splitColumns(DynamicMatrix<T> const& mat,
+                  typename DynamicMatrix<T>::size_type colIdx)
+    -> std::pair<DynamicMatrix<T>, DynamicMatrix<T>>;
+
+/// IMPLEMENTATON
+///////////////////////////////////////////////////////////////////////////
 template<typename T>
 DynamicMatrix<T>::DynamicMatrix(size_type row, size_type col)
 {
     resize(row, col);
+}
+
+template<typename T>
+DynamicMatrix<T>::DynamicMatrix(DynamicMatrix<T> const& other)
+{
+    resize(other.rows(), other.cols());
+    auto const* ptr = other.data_.get();
+    std::copy(ptr, std::next(ptr, size()), data_.get());
 }
 
 template<typename T>
@@ -136,11 +179,42 @@ auto DynamicMatrix<T>::clear() noexcept -> void
 template<typename T>
 auto DynamicMatrix<T>::at(size_type row, size_type col) -> value_type&
 {
+    if (row >= rows())
+    {
+        throw std::out_of_range("row index out of bounds");
+    }
+    if (col >= cols())
+    {
+        throw std::out_of_range("column index out of bounds");
+    }
+
     return data_[subscriptToIndex(row, col)];
 }
 
 template<typename T>
 auto DynamicMatrix<T>::at(size_type row, size_type col) const
+    -> value_type const&
+{
+    if (row >= rows())
+    {
+        throw std::out_of_range("row index out of bounds");
+    }
+    if (col >= cols())
+    {
+        throw std::out_of_range("column index out of bounds");
+    }
+
+    return data_[subscriptToIndex(row, col)];
+}
+
+template<typename T>
+auto DynamicMatrix<T>::operator()(size_type row, size_type col) -> value_type&
+{
+    return data_[subscriptToIndex(row, col)];
+}
+
+template<typename T>
+auto DynamicMatrix<T>::operator()(size_type row, size_type col) const
     -> value_type const&
 {
     return data_[subscriptToIndex(row, col)];
@@ -283,7 +357,7 @@ auto operator*(DynamicMatrix<T> const& mat, DynamicVector<T> const& vec)
         auto sum = T {};
         for (decltype(mat.cols()) col = 0; col < mat.cols(); ++col)
         {
-            sum += mat.at(row, col) * vec[col];
+            sum += mat(row, col) * vec[col];
         }
         result[row] = sum;
     }
@@ -299,11 +373,149 @@ auto operator<<(std::ostream& out, DynamicMatrix<T> const& m) -> std::ostream&
     {
         for (size_type col = 0; col < m.cols(); ++col)
         {
-            out << m.at(row, col) << ' ';
+            out << m(row, col) << ' ';
         }
         out << '\n';
     }
     return out;
+}
+
+template<typename T>
+auto swapRow(DynamicMatrix<T>& mat, typename DynamicMatrix<T>::size_type a,
+             typename DynamicMatrix<T>::size_type b) -> void
+{
+    if ((a >= mat.rows()) || (b >= mat.rows()))
+    {
+        throw std::out_of_range("row index out of bounds");
+    }
+
+    for (decltype(mat.cols()) col = 0; col < mat.cols(); ++col)
+    {
+        std::swap(mat(a, col), mat(b, col));
+    }
+}
+
+template<typename T>
+auto multiplyRow(DynamicMatrix<T>& mat,
+                 typename DynamicMatrix<T>::size_type row, T factor) -> void
+{
+    if (row >= mat.rows())
+    {
+        throw std::out_of_range("row index out of bounds");
+    }
+
+    for (decltype(mat.cols()) col = 0; col < mat.cols(); ++col)
+    {
+        mat(row, col) *= factor;
+    }
+}
+
+template<typename T>
+auto multiplyAddRow(DynamicMatrix<T>& mat,
+                    typename DynamicMatrix<T>::size_type source,
+                    typename DynamicMatrix<T>::size_type dest, T factor) -> void
+{
+    if ((source >= mat.rows()) || (source >= mat.rows()))
+    {
+        throw std::out_of_range("row index out of bounds");
+    }
+
+    for (decltype(mat.cols()) col = 0; col < mat.cols(); ++col)
+    {
+        mat(dest, col) += mat(source, col) * factor;
+    }
+}
+
+template<typename T>
+auto findRowWithMaxElement(DynamicMatrix<T> const& mat,
+                           typename DynamicMatrix<T>::size_type col,
+                           typename DynamicMatrix<T>::size_type startRow) ->
+    typename DynamicMatrix<T>::size_type
+{
+    using size_type = typename DynamicMatrix<T>::size_type;
+
+    if (startRow >= mat.rows())
+    {
+        throw std::out_of_range("row index out of bounds");
+    }
+    if (col >= mat.cols())
+    {
+        throw std::out_of_range("column index out of bounds");
+    }
+
+    size_type maxId = startRow;
+    for (size_type row = startRow; row < mat.rows(); ++row)
+    {
+        if (mat(row, col) >= mat(maxId, col))
+        {
+            maxId = row;
+        }
+    }
+
+    return maxId;
+}
+
+template<typename T>
+auto join(DynamicMatrix<T> const& a, DynamicMatrix<T> const& b)
+    -> DynamicMatrix<T>
+{
+    using size_type = typename DynamicMatrix<T>::size_type;
+
+    if (a.rows() != b.rows())
+    {
+        throw std::invalid_argument("rows size must match");
+    }
+
+    auto result = DynamicMatrix<T> {a.rows(), a.cols() + b.cols()};
+
+    for (size_type row = 0; row < result.rows(); ++row)
+    {
+        for (size_type col = 0; col < result.cols(); ++col)
+        {
+            auto const& source   = col < a.cols() ? a : b;
+            auto const sourceCol = col < a.cols() ? col : a.cols() - col;
+            result(row, col)     = source(row, sourceCol);
+        }
+    }
+
+    return result;
+}
+
+template<typename T>
+auto splitColumns(DynamicMatrix<T> const& mat,
+                  typename DynamicMatrix<T>::size_type colIdx)
+    -> std::pair<DynamicMatrix<T>, DynamicMatrix<T>>
+{
+    using size_type = typename DynamicMatrix<T>::size_type;
+
+    if (colIdx >= mat.cols())
+    {
+        throw std::out_of_range("column index out of bounds");
+    }
+
+    auto const numRows = mat.rows();
+    auto const numColA = colIdx;
+    auto const numColB = mat.cols() - colIdx;
+
+    auto a = DynamicMatrix<T> {numRows, numColA};
+    auto b = DynamicMatrix<T> {numRows, numColB};
+
+    for (size_type row = 0; row < numRows; ++row)
+    {
+        for (size_type col = 0; col < mat.cols(); ++col)
+        {
+            if (col < colIdx)
+            {
+                a(row, col) = mat(row, col);
+            }
+            else
+            {
+                b(row, col - colIdx) = mat(row, col);
+            }
+        }
+    }
+
+    return std::make_pair(a, b);
 }
 
 }  // namespace ta

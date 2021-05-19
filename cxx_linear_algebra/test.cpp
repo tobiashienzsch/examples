@@ -232,62 +232,271 @@ auto matrix_test() -> void
     REQUIRE(mat.at(1, 0) == T {0});
     REQUIRE(mat.at(1, 1) == T {0});
 
-    mat.at(0, 0) = T {0};
-    mat.at(0, 1) = T {1};
-    mat.at(1, 0) = T {2};
-    mat.at(1, 1) = T {3};
+    try
+    {
+        REQUIRE(mat.at(2, 0) == 0);
+        REQUIRE(false);
+    }
+    catch (std::exception const& e)
+    {
+        auto const* msg = "row index out of bounds";
+        REQUIRE((std::strcmp(e.what(), msg) == 0));
+    }
+
+    try
+    {
+        REQUIRE(mat.at(0, 2) == 0);
+        REQUIRE(false);
+    }
+    catch (std::exception const& e)
+    {
+        auto const* msg = "column index out of bounds";
+        REQUIRE((std::strcmp(e.what(), msg) == 0));
+    }
+
+    auto const& cmat = mat;
+    REQUIRE(cmat.at(0, 0) == T {0});
+    REQUIRE(cmat.at(0, 1) == T {0});
+    REQUIRE(cmat.at(1, 0) == T {0});
+    REQUIRE(cmat.at(1, 1) == T {0});
+
+    try
+    {
+        REQUIRE(cmat.at(2, 0) == 0);
+        REQUIRE(false);
+    }
+    catch (std::exception const& e)
+    {
+        auto const* msg = "row index out of bounds";
+        REQUIRE((std::strcmp(e.what(), msg) == 0));
+    }
+
+    try
+    {
+        REQUIRE(cmat.at(0, 2) == 0);
+        REQUIRE(false);
+    }
+    catch (std::exception const& e)
+    {
+        auto const* msg = "column index out of bounds";
+        REQUIRE((std::strcmp(e.what(), msg) == 0));
+    }
+
+    mat(0, 0) = T {0};
+    mat(0, 1) = T {1};
+    mat(1, 0) = T {2};
+    mat(1, 1) = T {3};
+
+    auto stream = std::stringstream {};
+    stream << mat;
+    REQUIRE(stream.str() == "0 1 \n2 3 \n");
 
     auto const& const_mat = mat;
-    REQUIRE(const_mat.at(0, 0) == T {0});
-    REQUIRE(const_mat.at(0, 1) == T {1});
-    REQUIRE(const_mat.at(1, 0) == T {2});
-    REQUIRE(const_mat.at(1, 1) == T {3});
+    REQUIRE(const_mat(0, 0) == T {0});
+    REQUIRE(const_mat(0, 1) == T {1});
+    REQUIRE(const_mat(1, 0) == T {2});
+    REQUIRE(const_mat(1, 1) == T {3});
 
     auto scaled = mat * T {2};
-    REQUIRE(scaled.at(0, 0) == T {0});
-    REQUIRE(scaled.at(0, 1) == T {2});
-    REQUIRE(scaled.at(1, 0) == T {4});
-    REQUIRE(scaled.at(1, 1) == T {6});
+    REQUIRE(scaled(0, 0) == T {0});
+    REQUIRE(scaled(0, 1) == T {2});
+    REQUIRE(scaled(1, 0) == T {4});
+    REQUIRE(scaled(1, 1) == T {6});
 
     auto scaled_twice = T {2} * scaled;
-    REQUIRE(scaled_twice.at(0, 0) == T {0});
-    REQUIRE(scaled_twice.at(0, 1) == T {4});
-    REQUIRE(scaled_twice.at(1, 0) == T {8});
-    REQUIRE(scaled_twice.at(1, 1) == T {12});
+    REQUIRE(scaled_twice(0, 0) == T {0});
+    REQUIRE(scaled_twice(0, 1) == T {4});
+    REQUIRE(scaled_twice(1, 0) == T {8});
+    REQUIRE(scaled_twice(1, 1) == T {12});
 
     auto add_scaler = T {2} + mat;
-    REQUIRE(add_scaler.at(0, 0) == T {2});
-    REQUIRE(add_scaler.at(0, 1) == T {3});
-    REQUIRE(add_scaler.at(1, 0) == T {4});
-    REQUIRE(add_scaler.at(1, 1) == T {5});
+    REQUIRE(add_scaler(0, 0) == T {2});
+    REQUIRE(add_scaler(0, 1) == T {3});
+    REQUIRE(add_scaler(1, 0) == T {4});
+    REQUIRE(add_scaler(1, 1) == T {5});
 
     auto sub_scaler = T {2} - mat;
-    REQUIRE(sub_scaler.at(0, 0) == T {-2});
-    REQUIRE(sub_scaler.at(0, 1) == T {-1});
-    REQUIRE(sub_scaler.at(1, 0) == T {0});
-    REQUIRE(sub_scaler.at(1, 1) == T {1});
+    REQUIRE(sub_scaler(0, 0) == T {-2});
+    REQUIRE(sub_scaler(0, 1) == T {-1});
+    REQUIRE(sub_scaler(1, 0) == T {0});
+    REQUIRE(sub_scaler(1, 1) == T {1});
 
     REQUIRE(add_scaler != sub_scaler);
 
     auto summed_matrix = add_scaler + sub_scaler;
-    REQUIRE(summed_matrix.at(0, 0) == T {0});
-    REQUIRE(summed_matrix.at(0, 1) == T {2});
-    REQUIRE(summed_matrix.at(1, 0) == T {4});
-    REQUIRE(summed_matrix.at(1, 1) == T {6});
+    REQUIRE(summed_matrix(0, 0) == T {0});
+    REQUIRE(summed_matrix(0, 1) == T {2});
+    REQUIRE(summed_matrix(1, 0) == T {4});
+    REQUIRE(summed_matrix(1, 1) == T {6});
 
     auto sub_matrix = add_scaler - sub_scaler;
-    REQUIRE(sub_matrix.at(0, 0) == T {4});
-    REQUIRE(sub_matrix.at(0, 1) == T {4});
-    REQUIRE(sub_matrix.at(1, 0) == T {4});
-    REQUIRE(sub_matrix.at(1, 1) == T {4});
+    REQUIRE(sub_matrix(0, 0) == T {4});
+    REQUIRE(sub_matrix(0, 1) == T {4});
+    REQUIRE(sub_matrix(1, 0) == T {4});
+    REQUIRE(sub_matrix(1, 1) == T {4});
 
     REQUIRE(sub_matrix != ta::DynamicMatrix<T> {});
 
     mat.clear();
-    REQUIRE(mat.at(0, 0) == T {0});
-    REQUIRE(mat.at(0, 1) == T {0});
-    REQUIRE(mat.at(1, 0) == T {0});
-    REQUIRE(mat.at(1, 1) == T {0});
+    REQUIRE(mat(0, 0) == T {0});
+    REQUIRE(mat(0, 1) == T {0});
+    REQUIRE(mat(1, 0) == T {0});
+    REQUIRE(mat(1, 1) == T {0});
+
+    try
+    {
+        auto swap  = ta::DynamicMatrix<T> {2, 2};
+        swap(0, 0) = T {0};
+        swap(0, 1) = T {0};
+        swap(1, 0) = T {1};
+        swap(1, 1) = T {1};
+
+        ta::swapRow(swap, 0, 1);
+        REQUIRE(swap(0, 0) == T {1});
+        REQUIRE(swap(0, 1) == T {1});
+        REQUIRE(swap(1, 0) == T {0});
+        REQUIRE(swap(1, 1) == T {0});
+
+        ta::swapRow(swap, 0, 2);
+        REQUIRE(false);
+    }
+    catch (std::exception const& e)
+    {
+        auto const* msg = "row index out of bounds";
+        REQUIRE((std::strcmp(e.what(), msg) == 0));
+    }
+
+    try
+    {
+        auto multi  = ta::DynamicMatrix<T> {2, 2};
+        multi(0, 0) = T {0};
+        multi(0, 1) = T {0};
+        multi(1, 0) = T {1};
+        multi(1, 1) = T {1};
+
+        ta::multiplyRow(multi, 0, T {2});
+        ta::multiplyRow(multi, 1, T {2});
+        REQUIRE(multi(0, 0) == T {0});
+        REQUIRE(multi(0, 1) == T {0});
+        REQUIRE(multi(1, 0) == T {2});
+        REQUIRE(multi(1, 1) == T {2});
+
+        ta::multiplyRow(multi, 2, T {2});
+        REQUIRE(false);
+    }
+    catch (std::exception const& e)
+    {
+        auto const* msg = "row index out of bounds";
+        REQUIRE((std::strcmp(e.what(), msg) == 0));
+    }
+
+    try
+    {
+        auto multiAdd  = ta::DynamicMatrix<T> {2, 2};
+        multiAdd(0, 0) = T {0};
+        multiAdd(0, 1) = T {0};
+        multiAdd(1, 0) = T {1};
+        multiAdd(1, 1) = T {1};
+
+        ta::multiplyAddRow(multiAdd, 1, 0, T {2});
+        REQUIRE(multiAdd(0, 0) == T {2});
+        REQUIRE(multiAdd(0, 1) == T {2});
+        REQUIRE(multiAdd(1, 0) == T {1});
+        REQUIRE(multiAdd(1, 1) == T {1});
+
+        ta::multiplyAddRow(multiAdd, 2, 0, T {2});
+        REQUIRE(false);
+    }
+    catch (std::exception const& e)
+    {
+        auto const* msg = "row index out of bounds";
+        REQUIRE((std::strcmp(e.what(), msg) == 0));
+    }
+
+    auto maxRow  = ta::DynamicMatrix<T> {2, 2};
+    maxRow(0, 0) = T {1};
+    maxRow(0, 1) = T {1};
+    maxRow(1, 0) = T {0};
+    maxRow(1, 1) = T {0};
+
+    REQUIRE(ta::findRowWithMaxElement(maxRow, 0, 0) == 0);
+    REQUIRE(ta::findRowWithMaxElement(maxRow, 0, 1) == 1);
+
+    try
+    {
+        ta::findRowWithMaxElement(maxRow, 0, 2);
+        REQUIRE(false);
+    }
+    catch (std::exception const& e)
+    {
+        auto const* msg = "row index out of bounds";
+        REQUIRE((std::strcmp(e.what(), msg) == 0));
+    }
+
+    try
+    {
+        ta::findRowWithMaxElement(maxRow, 2, 0);
+        REQUIRE(false);
+    }
+    catch (std::exception const& e)
+    {
+        auto const* msg = "column index out of bounds";
+        REQUIRE((std::strcmp(e.what(), msg) == 0));
+    }
+
+    auto split  = ta::DynamicMatrix<T> {2, 2};
+    split(0, 0) = T {1};
+    split(0, 1) = T {1};
+    split(1, 0) = T {0};
+    split(1, 1) = T {0};
+
+    auto splits = ta::splitColumns(split, 1);
+    REQUIRE(splits.first.rows() == 2);
+    REQUIRE(splits.first.cols() == 1);
+
+    REQUIRE(splits.second.rows() == 2);
+    REQUIRE(splits.second.cols() == 1);
+
+    try
+    {
+        REQUIRE(ta::splitColumns(split, 2).first.size() == 0);
+        REQUIRE(false);
+    }
+    catch (std::exception const& e)
+    {
+        auto const* msg = "column index out of bounds";
+        REQUIRE((std::strcmp(e.what(), msg) == 0));
+    }
+
+    auto joinA  = ta::DynamicMatrix<T> {2, 2};
+    joinA(0, 0) = T {1};
+    joinA(1, 0) = T {1};
+    joinA(0, 1) = T {0};
+    joinA(1, 1) = T {0};
+    auto joinB  = ta::DynamicMatrix<T> {2, 1};
+    joinB(0, 0) = T {1};
+    joinB(1, 0) = T {1};
+
+    auto joined = ta::join(joinA, joinB);
+    REQUIRE(joined.rows() == 2);
+    REQUIRE(joined.cols() == 3);
+    REQUIRE(joined(0, 0) == T {1});
+    REQUIRE(joined(1, 0) == T {1});
+    REQUIRE(joined(0, 1) == T {0});
+    REQUIRE(joined(1, 1) == T {0});
+    REQUIRE(joined(0, 2) == T {1});
+    REQUIRE(joined(1, 2) == T {1});
+
+    try
+    {
+        REQUIRE((ta::join(joinA, ta::DynamicMatrix<T> {3, 1}).size() == 0));
+        REQUIRE(false);
+    }
+    catch (std::exception const& e)
+    {
+        auto const* msg = "rows size must match";
+        REQUIRE((std::strcmp(e.what(), msg) == 0));
+    }
 }
 
 auto main() -> int
