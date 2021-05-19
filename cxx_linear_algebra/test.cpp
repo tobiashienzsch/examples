@@ -216,7 +216,7 @@ auto vector_test() -> void
 }
 
 template<typename T>
-auto matrix_test() -> void
+auto matrix_class_test() -> void
 {
     auto mat = math::Matrix<T> {};
     REQUIRE(mat.rows() == 0);
@@ -347,7 +347,11 @@ auto matrix_test() -> void
     REQUIRE(mat(0, 1) == T {0});
     REQUIRE(mat(1, 0) == T {0});
     REQUIRE(mat(1, 1) == T {0});
+}
 
+template<typename T>
+auto matrix_functions_test() -> void
+{
     try
     {
         auto swap  = math::Matrix<T> {2, 2};
@@ -669,9 +673,13 @@ auto main() -> int
     vector_test<double>();
     vector_test<long double>();
 
-    matrix_test<float>();
-    matrix_test<double>();
-    matrix_test<long double>();
+    matrix_class_test<float>();
+    matrix_class_test<double>();
+    matrix_class_test<long double>();
+
+    matrix_functions_test<float>();
+    matrix_functions_test<double>();
+    matrix_functions_test<long double>();
 
     linear_solve_test<float>();
     linear_solve_test<double>();

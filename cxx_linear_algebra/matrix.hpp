@@ -843,7 +843,7 @@ auto rank(Matrix<T> const& mat) -> typename Matrix<T>::size_type
         auto subMatrixCount = size_type {};
         while ((subMatrixCount < subMatricies.size()) && (!completed))
         {
-            auto cur = subMatricies[subMatrixCount];
+            auto const cur = subMatricies[subMatrixCount];
             subMatrixCount++;
 
             if (isNonZero(cur))
