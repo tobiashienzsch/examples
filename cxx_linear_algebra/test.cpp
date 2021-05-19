@@ -568,15 +568,48 @@ auto matrix_test() -> void
     REQUIRE(sub(1, 1) == T {1});
 
     REQUIRE(math::determinant(invertA) == T {-4});
+
+    REQUIRE(math::isRowEchelon(math::makeIdentity<T>(2)));
+    REQUIRE(math::isRowEchelon(math::makeIdentity<T>(3)));
+    REQUIRE(math::isRowEchelon(math::makeIdentity<T>(4)));
+    REQUIRE(math::isRowEchelon(math::makeIdentity<T>(5)));
+    REQUIRE(math::isRowEchelon(math::makeIdentity<T>(6)));
+    REQUIRE(math::isRowEchelon(math::makeIdentity<T>(7)));
+
+    auto id2 = math::makeIdentity<T>(2);
+    math::rowEchelon(id2);
+    REQUIRE(math::isRowEchelon(id2));
+
+    auto id3 = math::makeIdentity<T>(3);
+    math::rowEchelon(id3);
+    REQUIRE(math::isRowEchelon(id3));
+
+    auto id4 = math::makeIdentity<T>(4);
+    math::rowEchelon(id4);
+    REQUIRE(math::isRowEchelon(id4));
+
+    auto id5 = math::makeIdentity<T>(5);
+    math::rowEchelon(id5);
+    REQUIRE(math::isRowEchelon(id5));
+
+    auto id6 = math::makeIdentity<T>(6);
+    math::rowEchelon(id6);
+    REQUIRE(math::isRowEchelon(id6));
+
+    auto id7 = math::makeIdentity<T>(7);
+    math::rowEchelon(id7);
+    REQUIRE(math::isRowEchelon(id7));
 }
 
 auto main() -> int
 {
     vector_test<float>();
     vector_test<double>();
+    vector_test<long double>();
 
     matrix_test<float>();
     matrix_test<double>();
+    matrix_test<long double>();
 
     return EXIT_SUCCESS;
 }

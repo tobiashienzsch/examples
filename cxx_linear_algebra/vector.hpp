@@ -13,6 +13,20 @@
 
 namespace math
 {
+
+namespace detail
+{
+template<typename T>
+[[nodiscard]] auto closeEnough(T a, T b) -> bool
+{
+    if constexpr (std::is_same<T, float>::value)
+    {
+        return std::abs(a - b) < T {1e-9};
+    }
+    return std::abs(a - b) < T {1e-12};
+}
+}  // namespace detail
+
 template<typename T>
 struct Vector
 {

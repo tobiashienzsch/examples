@@ -141,6 +141,12 @@ auto subMatrix(Matrix<T> const& mat, typename Matrix<T>::size_type rowIdx,
 template<typename T>
 auto determinant(Matrix<T> const& mat) -> typename Matrix<T>::value_type;
 
+template<typename T>
+auto isRowEchelon(Matrix<T> const& mat) -> bool;
+
+template<typename T>
+auto rowEchelon(Matrix<T>& mat) -> void;
+
 /// IMPLEMENTATON
 ///////////////////////////////////////////////////////////////////////////
 template<typename T>
@@ -594,8 +600,7 @@ auto makeIdentity(Matrix<T>& mat) -> void
 template<typename T>
 auto inverse(Matrix<T> const& mat) -> Matrix<T>
 {
-    using size_type  = typename Matrix<T>::size_type;
-    auto closeEnough = [](T a, T b) { return std::abs(a - b) < T {1e-9}; };
+    using size_type = typename Matrix<T>::size_type;
 
     if (!isSquare(mat))
     {
@@ -639,7 +644,7 @@ auto inverse(Matrix<T> const& mat) -> Matrix<T>
                 auto currentValue = augment(rowIdx, cCol);
                 auto rowOneValue  = augment(rowOneIndex, cCol);
 
-                if (!closeEnough(rowOneValue, T {}))
+                if (!detail::closeEnough(rowOneValue, T {}))
                 {
                     auto correction = -(currentValue / rowOneValue);
                     multiplyAddRow(augment, rowOneIndex, rowIdx, correction);
@@ -648,13 +653,13 @@ auto inverse(Matrix<T> const& mat) -> Matrix<T>
 
             for (auto colIdx = cCol + 1; colIdx < mat.cols(); ++colIdx)
             {
-                if (!closeEnough(augment(cRow, colIdx), T {}))
+                if (!detail::closeEnough(augment(cRow, colIdx), T {}))
                 {
                     auto rowOneIndex  = colIdx;
                     auto currentValue = augment(cRow, colIdx);
                     auto rowOneValue  = augment(rowOneIndex, colIdx);
 
-                    if (!closeEnough(rowOneValue, T {}))
+                    if (!detail::closeEnough(rowOneValue, T {}))
                     {
                         auto correction = -(currentValue / rowOneValue);
                         multiplyAddRow(augment, rowOneIndex, cRow, correction);
@@ -683,9 +688,9 @@ auto compareEqual(Matrix<T> const& l, Matrix<T> const& r) -> bool
     {
         return false;
     }
-    auto closeEnough = [](T a, T b) { return std::abs(a - b) < T {1e-9}; };
-    return std::equal(l.data(), std::next(l.data(), l.size()), r.data(),
-                      closeEnough);
+
+    auto cmp = [](auto a, auto b) { return detail::closeEnough(a, b); };
+    return std::equal(l.data(), std::next(l.data(), l.size()), r.data(), cmp);
 }
 
 template<typename T>
@@ -736,4 +741,64 @@ auto determinant(Matrix<T> const& mat) -> typename Matrix<T>::value_type
     return sum;
 }
 
+template<typename T>
+auto isRowEchelon(Matrix<T> const& mat) -> bool
+{
+    auto sum = T {};
+    for (decltype(mat.rows()) row {1}; row < mat.rows(); ++row)
+    {
+        for (decltype(mat.cols()) col {0}; col < row; ++col)
+        {
+            sum += mat(row, col);
+        }
+    }
+
+    return detail::closeEnough(sum, T {});
+}
+
+template<typename T>
+auto rowEchelon(Matrix<T>& mat) -> void
+{
+    if (mat.cols() < mat.rows())
+    {
+        throw std::invalid_argument(
+            "matrix must have at least have as many columns as rows");
+    }
+
+    using size_type                    = typename Matrix<T>::size_type;
+    static constexpr auto maxLoopCount = size_type {100};
+
+    auto count     = size_type {0};
+    auto completed = false;
+
+    auto cRow = size_type {};
+    auto cCol = size_type {};
+
+    while ((!completed) && (count < maxLoopCount))
+    {
+        for (auto diagIdx = size_type {0}; diagIdx < mat.rows(); ++diagIdx)
+        {
+            cRow = diagIdx;
+            cCol = diagIdx;
+
+            for (auto rowIdx = cRow + 1; rowIdx < mat.rows(); ++rowIdx)
+            {
+                if (!detail::closeEnough(mat(rowIdx, cCol), T {}))
+                {
+                    auto const rowOneIndex  = cCol;
+                    auto const rowOneValue  = mat(rowOneIndex, cCol);
+                    auto const currentValue = mat(rowIdx, cCol);
+                    if (!detail::closeEnough(rowOneValue, T {}))
+                    {
+                        auto const correction = -(currentValue / rowOneValue);
+                        multiplyAddRow(mat, rowOneIndex, rowIdx, correction);
+                    }
+                }
+            }
+        }
+
+        completed = isRowEchelon(mat);
+        count += 1;
+    }
+}
 }  // namespace math
