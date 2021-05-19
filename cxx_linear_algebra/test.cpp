@@ -1,3 +1,4 @@
+#include "linear_solve.hpp"
 #include "matrix.hpp"
 #include "vector.hpp"
 
@@ -599,6 +600,48 @@ auto matrix_test() -> void
     auto id7 = math::makeIdentity<T>(7);
     math::rowEchelon(id7);
     REQUIRE(math::isRowEchelon(id7));
+
+    auto A  = math::Matrix<T> {3, 4};
+    A(0, 0) = T {1};
+    A(0, 1) = T {3};
+    A(0, 2) = T {-1};
+    A(0, 3) = T {13};
+    A(1, 0) = T {4};
+    A(1, 1) = T {-1};
+    A(1, 2) = T {1};
+    A(1, 3) = T {9};
+    A(2, 0) = T {2};
+    A(2, 1) = T {4};
+    A(2, 2) = T {3};
+    A(2, 3) = T {-6};
+    math::rowEchelon(A);
+    REQUIRE(math::isRowEchelon(A));
+}
+
+template<typename T>
+auto linear_solve_test() -> void
+{
+    auto A  = math::Matrix<T> {3, 3};
+    A(0, 0) = T {1};
+    A(0, 1) = T {3};
+    A(0, 2) = T {-1};
+    A(1, 0) = T {4};
+    A(1, 1) = T {-1};
+    A(1, 2) = T {1};
+    A(2, 0) = T {2};
+    A(2, 1) = T {4};
+    A(2, 2) = T {3};
+
+    auto b = math::Vector<T> {3};
+    b[0]   = T {13};
+    b[1]   = T {9};
+    b[2]   = T {-6};
+
+    auto result = math::linearSolve(A, b);
+    REQUIRE(result.size() == 3);
+    REQUIRE(math::detail::closeEnough(result[0], T {4}));
+    REQUIRE(math::detail::closeEnough(result[1], T {1}));
+    REQUIRE(math::detail::closeEnough(result[2], T {-6}));
 }
 
 auto main() -> int
@@ -610,6 +653,10 @@ auto main() -> int
     matrix_test<float>();
     matrix_test<double>();
     matrix_test<long double>();
+
+    linear_solve_test<float>();
+    linear_solve_test<double>();
+    linear_solve_test<long double>();
 
     return EXIT_SUCCESS;
 }
