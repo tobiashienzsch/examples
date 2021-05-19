@@ -38,7 +38,6 @@ struct DynamicMatrix
     [[nodiscard]] auto operator()(size_type row, size_type col) const
         -> value_type const&;
 
-    [[nodiscard]] auto data() noexcept -> value_type*;
     [[nodiscard]] auto data() const noexcept -> value_type const*;
 
 private:
@@ -221,12 +220,6 @@ auto DynamicMatrix<T>::operator()(size_type row, size_type col) const
 }
 
 template<typename T>
-auto DynamicMatrix<T>::data() noexcept -> value_type*
-{
-    return data_.get();
-}
-
-template<typename T>
 auto DynamicMatrix<T>::data() const noexcept -> value_type const*
 {
     return data_.get();
@@ -252,18 +245,34 @@ template<typename T>
 auto operator+(DynamicMatrix<T> const& l, DynamicMatrix<T> const& r)
     -> DynamicMatrix<T>
 {
+    if ((l.rows() != r.rows()) || l.cols() != r.cols())
+    {
+        throw std::invalid_argument("matrix layout must match");
+    }
+
     auto tmp = DynamicMatrix<T> {l.rows(), l.cols()};
-    std::transform(l.data(), std::next(l.data(), l.size()), r.data(),
-                   tmp.data(), std::plus<> {});
+    for (decltype(tmp.rows()) row = 0; row < l.rows(); ++row)
+    {
+        for (decltype(tmp.cols()) col = 0; col < r.cols(); ++col)
+        {
+            tmp(row, col) = l(row, col) + r(row, col);
+        }
+    }
+
     return tmp;
 }
 
 template<typename T>
 auto operator+(DynamicMatrix<T> const& m, T scaler) -> DynamicMatrix<T>
 {
-    auto tmp  = DynamicMatrix<T> {m.rows(), m.cols()};
-    auto plus = [scaler](auto v) { return v + scaler; };
-    std::transform(m.data(), std::next(m.data(), m.size()), tmp.data(), plus);
+    auto tmp = DynamicMatrix<T> {m.rows(), m.cols()};
+    for (decltype(tmp.rows()) row = 0; row < tmp.rows(); ++row)
+    {
+        for (decltype(tmp.cols()) col = 0; col < tmp.cols(); ++col)
+        {
+            tmp(row, col) = m(row, col) + scaler;
+        }
+    }
     return tmp;
 }
 
@@ -277,18 +286,34 @@ template<typename T>
 auto operator-(DynamicMatrix<T> const& l, DynamicMatrix<T> const& r)
     -> DynamicMatrix<T>
 {
+    if ((l.rows() != r.rows()) || l.cols() != r.cols())
+    {
+        throw std::invalid_argument("matrix layout must match");
+    }
+
     auto tmp = DynamicMatrix<T> {l.rows(), l.cols()};
-    std::transform(l.data(), std::next(l.data(), l.size()), r.data(),
-                   tmp.data(), std::minus<> {});
+    for (decltype(tmp.rows()) row = 0; row < l.rows(); ++row)
+    {
+        for (decltype(tmp.cols()) col = 0; col < r.cols(); ++col)
+        {
+            tmp(row, col) = l(row, col) - r(row, col);
+        }
+    }
+
     return tmp;
 }
 
 template<typename T>
 auto operator-(DynamicMatrix<T> const& m, T scaler) -> DynamicMatrix<T>
 {
-    auto tmp   = DynamicMatrix<T> {m.rows(), m.cols()};
-    auto minus = [scaler](auto v) { return v - scaler; };
-    std::transform(m.data(), std::next(m.data(), m.size()), tmp.data(), minus);
+    auto tmp = DynamicMatrix<T> {m.rows(), m.cols()};
+    for (decltype(tmp.rows()) row = 0; row < tmp.rows(); ++row)
+    {
+        for (decltype(tmp.cols()) col = 0; col < tmp.cols(); ++col)
+        {
+            tmp(row, col) = m(row, col) - scaler;
+        }
+    }
     return tmp;
 }
 
@@ -329,10 +354,14 @@ auto operator*(DynamicMatrix<T> const& l, DynamicMatrix<T> const& r)
 template<typename T>
 auto operator*(DynamicMatrix<T> const& m, T scaler) -> DynamicMatrix<T>
 {
-    auto tmp      = DynamicMatrix<T> {m.rows(), m.cols()};
-    auto multiply = [scaler](auto v) { return v * scaler; };
-    std::transform(m.data(), std::next(m.data(), m.size()), tmp.data(),
-                   multiply);
+    auto tmp = DynamicMatrix<T> {m.rows(), m.cols()};
+    for (decltype(tmp.rows()) row = 0; row < tmp.rows(); ++row)
+    {
+        for (decltype(tmp.cols()) col = 0; col < tmp.cols(); ++col)
+        {
+            tmp(row, col) = m(row, col) * scaler;
+        }
+    }
     return tmp;
 }
 
