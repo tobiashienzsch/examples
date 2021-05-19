@@ -558,6 +558,16 @@ auto matrix_test() -> void
     REQUIRE(invA(2, 0) == T {-0.75});
     REQUIRE(invA(2, 1) == T {1.5});
     REQUIRE(invA(2, 2) == T {0.25});
+
+    auto sub = math::subMatrix(invertA, 0, 0);
+    REQUIRE(math::isSquare(sub));
+    REQUIRE(sub.rows() == 2);
+    REQUIRE(sub(0, 0) == T {0});
+    REQUIRE(sub(0, 1) == T {1});
+    REQUIRE(sub(1, 0) == T {3});
+    REQUIRE(sub(1, 1) == T {1});
+
+    REQUIRE(math::determinant(invertA) == T {-4});
 }
 
 auto main() -> int

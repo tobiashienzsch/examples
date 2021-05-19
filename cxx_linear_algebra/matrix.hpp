@@ -134,6 +134,13 @@ auto makeIdentity(Matrix<T>& mat) -> void;
 template<typename T>
 auto inverse(Matrix<T> const& mat) -> Matrix<T>;
 
+template<typename T>
+auto subMatrix(Matrix<T> const& mat, typename Matrix<T>::size_type rowIdx,
+               typename Matrix<T>::size_type colIdx) -> Matrix<T>;
+
+template<typename T>
+auto determinant(Matrix<T> const& mat) -> typename Matrix<T>::value_type;
+
 /// IMPLEMENTATON
 ///////////////////////////////////////////////////////////////////////////
 template<typename T>
@@ -656,8 +663,8 @@ auto inverse(Matrix<T> const& mat) -> Matrix<T>
             }
         }
 
-        auto splits = splitColumns(augment, mat.cols());
-        if (compareEqual(splits.first, identity))
+        if (auto splits = splitColumns(augment, mat.cols());
+            compareEqual(splits.first, identity))
         {
             completed = true;
             result    = splits.second;
@@ -679,6 +686,54 @@ auto compareEqual(Matrix<T> const& l, Matrix<T> const& r) -> bool
     auto closeEnough = [](T a, T b) { return std::abs(a - b) < T {1e-9}; };
     return std::equal(l.data(), std::next(l.data(), l.size()), r.data(),
                       closeEnough);
+}
+
+template<typename T>
+auto subMatrix(Matrix<T> const& mat, typename Matrix<T>::size_type rowIdx,
+               typename Matrix<T>::size_type colIdx) -> Matrix<T>
+{
+    auto result = Matrix<T> {mat.rows() - 1, mat.cols() - 1};
+    for (decltype(mat.rows()) row = 0; row < mat.rows(); ++row)
+    {
+        for (decltype(mat.rows()) col = 0; col < mat.cols(); ++col)
+        {
+            if ((row != rowIdx) && (col != colIdx))
+            {
+                auto newRow            = row < rowIdx ? row : row - 1;
+                auto newCol            = col < colIdx ? col : col - 1;
+                result(newRow, newCol) = mat(row, col);
+            }
+        }
+    }
+    return result;
+}
+
+template<typename T>
+auto determinant(Matrix<T> const& mat) -> typename Matrix<T>::value_type
+{
+    using value_type = typename Matrix<T>::value_type;
+
+    if (!isSquare(mat))
+    {
+        throw std::invalid_argument("matrix must be square");
+    }
+
+    if (mat.rows() == 2)
+    {
+        return (mat(0, 0) * mat(1, 1)) - (mat(0, 1) * mat(1, 0));
+    }
+
+    auto sum  = value_type {0};
+    auto sign = value_type {1};
+    for (decltype(mat.cols()) col = 0; col < mat.cols(); ++col)
+    {
+        auto sub = subMatrix(mat, 0, col);
+        auto d   = determinant(sub);
+        sum += mat(0, col) * d * sign;
+        sign = -sign;
+    }
+
+    return sum;
 }
 
 }  // namespace math
