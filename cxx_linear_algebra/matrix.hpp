@@ -93,6 +93,9 @@ template<typename T>
 auto operator<<(std::ostream& out, Matrix<T> const& mat) -> std::ostream&;
 
 template<typename T>
+auto isSquare(Matrix<T> const& mat) -> bool;
+
+template<typename T>
 auto swapRow(Matrix<T>& mat, typename Matrix<T>::size_type a,
              typename Matrix<T>::size_type b) -> void;
 
@@ -116,6 +119,16 @@ auto join(Matrix<T> const& a, Matrix<T> const& b) -> Matrix<T>;
 template<typename T>
 auto splitColumns(Matrix<T> const& mat, typename Matrix<T>::size_type colIdx)
     -> std::pair<Matrix<T>, Matrix<T>>;
+
+template<typename T>
+auto makeIdentity(typename Matrix<T>::size_type rows,
+                  typename Matrix<T>::size_type cols) -> Matrix<T>;
+
+template<typename T>
+auto makeIdentity(Matrix<T>& mat) -> void;
+
+template<typename T>
+auto inverse(Matrix<T> const& mat) -> Matrix<T>;
 
 /// IMPLEMENTATON
 ///////////////////////////////////////////////////////////////////////////
@@ -397,6 +410,12 @@ auto operator<<(std::ostream& out, Matrix<T> const& m) -> std::ostream&
 }
 
 template<typename T>
+auto isSquare(Matrix<T> const& mat) -> bool
+{
+    return mat.rows() == mat.cols();
+}
+
+template<typename T>
 auto swapRow(Matrix<T>& mat, typename Matrix<T>::size_type a,
              typename Matrix<T>::size_type b) -> void
 {
@@ -529,6 +548,45 @@ auto splitColumns(Matrix<T> const& mat, typename Matrix<T>::size_type colIdx)
     }
 
     return std::make_pair(a, b);
+}
+
+template<typename T>
+auto makeIdentity(typename Matrix<T>::size_type rows,
+                  typename Matrix<T>::size_type cols) -> Matrix<T>
+{
+    if (rows != cols)
+    {
+        throw std::invalid_argument("matrix must be square");
+    }
+
+    auto mat = Matrix<T> {rows, cols};
+    makeIdentity(mat);
+    return mat;
+}
+
+template<typename T>
+auto makeIdentity(Matrix<T>& mat) -> void
+{
+    if (!isSquare(mat))
+    {
+        throw std::invalid_argument("matrix must be square");
+    }
+
+    mat.clear();
+    for (decltype(mat.rows()) i = 0; i < mat.rows(); ++i)
+    {
+        mat(i, i) = T {1};
+    }
+}
+
+template<typename T>
+auto inverse(Matrix<T> const& mat) -> Matrix<T>
+{
+    if (!isSquare(mat))
+    {
+        throw std::invalid_argument("matrix must be square");
+    }
+    return {};
 }
 
 }  // namespace ta

@@ -497,6 +497,43 @@ auto matrix_test() -> void
         auto const* msg = "rows size must match";
         REQUIRE((std::strcmp(e.what(), msg) == 0));
     }
+
+    auto identityA = ta::Matrix<T> {2, 2};
+    ta::makeIdentity(identityA);
+    identityA(0, 0) = T {1};
+    identityA(1, 0) = T {0};
+    identityA(0, 1) = T {0};
+    identityA(1, 1) = T {1};
+
+    auto identityB  = ta::makeIdentity<T>(3, 3);
+    identityB(0, 0) = T {1};
+    identityB(1, 0) = T {0};
+    identityB(0, 1) = T {0};
+    identityB(1, 1) = T {1};
+    identityB(2, 2) = T {1};
+
+    try
+    {
+        auto identityC = ta::Matrix<T> {2, 1};
+        ta::makeIdentity(identityC);
+        REQUIRE(false);
+    }
+    catch (std::exception const& e)
+    {
+        auto const* msg = "matrix must be square";
+        REQUIRE((std::strcmp(e.what(), msg) == 0));
+    }
+
+    try
+    {
+        REQUIRE(ta::makeIdentity<T>(3, 4).size());
+        REQUIRE(false);
+    }
+    catch (std::exception const& e)
+    {
+        auto const* msg = "matrix must be square";
+        REQUIRE((std::strcmp(e.what(), msg) == 0));
+    }
 }
 
 auto main() -> int
