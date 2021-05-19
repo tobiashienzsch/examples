@@ -323,33 +323,33 @@ auto operator-(T scaler, DynamicMatrix<T> const& m) -> DynamicMatrix<T>
     return m - scaler;
 }
 
-template<typename T>
-auto operator*(DynamicMatrix<T> const& l, DynamicMatrix<T> const& r)
-    -> DynamicMatrix<T>
-{
-    using size_type = typename DynamicMatrix<T>::size_type;
-    auto tmp        = DynamicMatrix<T> {l.rows(), l.cols()};
-    if (l.cols() == r.cols())
-    {
-        for (size_type lRow = 0; lRow < l.rows(); ++lRow)
-        {
-            for (size_type rCol = 0; rCol < r.cols(); ++rCol)
-            {
-                auto result = T {};
-                for (size_type lCol = 0; lCol < l.cols(); ++lCol)
-                {
-                    auto const lIndex = (lRow * l.cols()) + lCol;
-                    auto const rIndex = (lCol * r.cols()) + rCol;
-                    result += l.data()[lIndex] + r.data()[rIndex];
-                }
+// template<typename T>
+// auto operator*(DynamicMatrix<T> const& l, DynamicMatrix<T> const& r)
+//     -> DynamicMatrix<T>
+// {
+//     using size_type = typename DynamicMatrix<T>::size_type;
+//     auto tmp        = DynamicMatrix<T> {l.rows(), l.cols()};
+//     if (l.cols() == r.cols())
+//     {
+//         for (size_type lRow = 0; lRow < l.rows(); ++lRow)
+//         {
+//             for (size_type rCol = 0; rCol < r.cols(); ++rCol)
+//             {
+//                 auto result = T {};
+//                 for (size_type lCol = 0; lCol < l.cols(); ++lCol)
+//                 {
+//                     auto const lIndex = (lRow * l.cols()) + lCol;
+//                     auto const rIndex = (lCol * r.cols()) + rCol;
+//                     result += l.data()[lIndex] + r.data()[rIndex];
+//                 }
 
-                auto const resultIndex  = (lRow + r.cols()) + rCol;
-                tmp.data()[resultIndex] = result;
-            }
-        }
-    }
-    return tmp;
-}
+//                 auto const resultIndex  = (lRow + r.cols()) + rCol;
+//                 tmp.data()[resultIndex] = result;
+//             }
+//         }
+//     }
+//     return tmp;
+// }
 
 template<typename T>
 auto operator*(DynamicMatrix<T> const& m, T scaler) -> DynamicMatrix<T>

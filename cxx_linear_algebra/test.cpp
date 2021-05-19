@@ -57,17 +57,17 @@ auto vector_test() -> void
     REQUIRE(vec == same_size);
     REQUIRE(!(vec != same_size));
 
-    auto zero_add = vec + same_size;
+    auto const zero_add = vec + same_size;
     REQUIRE(zero_add.size() == 3);
     REQUIRE(zero_add[0] == T {});
     REQUIRE(zero_add[1] == T {});
     REQUIRE(zero_add[2] == T {});
 
-    auto zero_sub = vec - same_size;
+    auto const zero_sub = vec - same_size;
     REQUIRE(zero_sub.size() == 3);
-    REQUIRE(zero_sub[0] == T {});
-    REQUIRE(zero_sub[1] == T {});
-    REQUIRE(zero_sub[2] == T {});
+    REQUIRE(zero_sub.at(0) == T {});
+    REQUIRE(zero_sub.at(1) == T {});
+    REQUIRE(zero_sub.at(2) == T {});
 
     vec[0] = T {1};
     vec[1] = T {2};
@@ -203,12 +203,12 @@ auto vector_test() -> void
     lhs[1] = T {0};
     lhs[2] = T {0};
 
-    auto normalized = lhs.normalized();
+    auto normalized = ta::normalized(lhs);
     REQUIRE(normalized[0] == T {2});
     REQUIRE(normalized[1] == T {0});
     REQUIRE(normalized[2] == T {0});
 
-    lhs.normalize();
+    ta::normalize(lhs);
     REQUIRE(lhs[0] == T {2});
     REQUIRE(lhs[1] == T {0});
     REQUIRE(lhs[2] == T {0});

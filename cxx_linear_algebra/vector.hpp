@@ -34,10 +34,6 @@ struct DynamicVector
     [[nodiscard]] auto operator[](size_type idx) -> value_type&;
     [[nodiscard]] auto operator[](size_type idx) const -> value_type const&;
 
-    auto normalize() const noexcept -> void;
-    [[nodiscard]] auto normalized() const noexcept -> DynamicVector<T>;
-    [[nodiscard]] auto norm() const noexcept -> value_type;
-
 private:
     std::unique_ptr<value_type[]> data_ {};  // NOLINT
     size_type size_ {};
@@ -76,6 +72,16 @@ template<typename T>
 auto crossProduct(DynamicVector<T> const& l, DynamicVector<T> const& r)
     -> DynamicVector<T>;
 
+template<typename T>
+auto norm(DynamicVector<T> const& vec) noexcept ->
+    typename DynamicVector<T>::value_type;
+
+template<typename T>
+auto normalized(DynamicVector<T> const& vec) noexcept -> DynamicVector<T>;
+
+template<typename T>
+auto normalize(DynamicVector<T>& vec) noexcept -> void;
+
 // IMPLEMENTATION
 template<typename T>
 DynamicVector<T>::DynamicVector(size_type size)
@@ -109,31 +115,6 @@ template<typename T>
 auto DynamicVector<T>::size() const noexcept -> size_type
 {
     return size_;
-}
-
-template<typename T>
-auto DynamicVector<T>::norm() const noexcept -> value_type
-{
-    auto const* ptr = data_.get();
-    auto const sum  = std::accumulate(ptr, std::next(ptr, size()), T {});
-    return std::sqrt(sum);
-}
-
-template<typename T>
-auto DynamicVector<T>::normalized() const noexcept -> DynamicVector<T>
-{
-    auto const norm = this->norm();
-    DynamicVector<T> result {*this};
-    return result * (T {1} / norm);
-}
-
-template<typename T>
-auto DynamicVector<T>::normalize() const noexcept -> void
-{
-    auto* ptr       = data_.get();
-    auto const norm = this->norm();
-    auto const func = [norm](auto const& v) { return v * (T {1} / norm); };
-    std::transform(ptr, std::next(ptr, size()), ptr, func);
 }
 
 template<typename T>
@@ -290,6 +271,37 @@ auto crossProduct(DynamicVector<T> const& l, DynamicVector<T> const& r)
     result[1]   = (l[0] * r[2]) - (l[2] * r[0]);
     result[2]   = (l[0] * r[1]) - (l[1] * r[0]);
     return result;
+}
+
+template<typename T>
+auto norm(DynamicVector<T> const& vec) noexcept ->
+    typename DynamicVector<T>::value_type
+{
+    using value_type = typename DynamicVector<T>::value_type;
+    auto sum         = value_type {};
+    for (decltype(vec.size()) i = 0; i < vec.size(); ++i)
+    {
+        sum += vec[i];
+    }
+    return std::sqrt(sum);
+}
+
+template<typename T>
+auto normalized(DynamicVector<T> const& vec) noexcept -> DynamicVector<T>
+{
+    using value_type = typename DynamicVector<T>::value_type;
+    return DynamicVector<T> {vec} * (value_type {1} / norm(vec));
+}
+
+template<typename T>
+auto normalize(DynamicVector<T>& vec) noexcept -> void
+{
+    using value_type = typename DynamicVector<T>::value_type;
+    auto const n     = norm(vec);
+    for (decltype(vec.size()) i = 0; i < vec.size(); ++i)
+    {
+        vec[i] = vec[i] * (value_type {1} / n);
+    }
 }
 
 }  // namespace ta

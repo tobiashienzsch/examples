@@ -8,7 +8,7 @@ auto matrix_demo() -> void
     mat.at(1, 1) = 1;
     std::cout << mat << '\n';
     std::cout << mat + mat << '\n';
-    std::cout << mat * mat << '\n';
+    // std::cout << mat * mat << '\n';
     std::cout << mat + 2.0 << '\n';
     std::cout << mat - 1.0 << '\n';
     std::cout << mat * 3.0 << '\n';
