@@ -16,7 +16,7 @@ tests: $(BIN_DIR)
 
 .PHONY: coverage
 coverage: tests
-	$(CXX) -std=c++2a -O0 -coverage -Wall -Wextra -Wpedantic -o $(BIN_DIR)/tests-coverage test.cpp
+	$(CXX) -std=c++2a -O0 -g3 -coverage -Wall -Wextra -Wpedantic -o $(BIN_DIR)/tests-coverage test.cpp
 	./$(BIN_DIR)/tests-coverage
 
 .PHONY: coverage-html

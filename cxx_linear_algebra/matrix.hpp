@@ -121,8 +121,7 @@ auto splitColumns(Matrix<T> const& mat, typename Matrix<T>::size_type colIdx)
     -> std::pair<Matrix<T>, Matrix<T>>;
 
 template<typename T>
-auto makeIdentity(typename Matrix<T>::size_type rows,
-                  typename Matrix<T>::size_type cols) -> Matrix<T>;
+auto makeIdentity(typename Matrix<T>::size_type size) -> Matrix<T>;
 
 template<typename T>
 auto makeIdentity(Matrix<T>& mat) -> void;
@@ -506,7 +505,7 @@ auto join(Matrix<T> const& a, Matrix<T> const& b) -> Matrix<T>
         for (size_type col = 0; col < result.cols(); ++col)
         {
             auto const& source   = col < a.cols() ? a : b;
-            auto const sourceCol = col < a.cols() ? col : a.cols() - col;
+            auto const sourceCol = col < a.cols() ? col : col - a.cols();
             result(row, col)     = source(row, sourceCol);
         }
     }
@@ -551,15 +550,9 @@ auto splitColumns(Matrix<T> const& mat, typename Matrix<T>::size_type colIdx)
 }
 
 template<typename T>
-auto makeIdentity(typename Matrix<T>::size_type rows,
-                  typename Matrix<T>::size_type cols) -> Matrix<T>
+auto makeIdentity(typename Matrix<T>::size_type size) -> Matrix<T>
 {
-    if (rows != cols)
-    {
-        throw std::invalid_argument("matrix must be square");
-    }
-
-    auto mat = Matrix<T> {rows, cols};
+    auto mat = Matrix<T> {size, size};
     makeIdentity(mat);
     return mat;
 }
@@ -586,6 +579,21 @@ auto inverse(Matrix<T> const& mat) -> Matrix<T>
     {
         throw std::invalid_argument("matrix must be square");
     }
+
+    using size_type = typename Matrix<T>::size_type;
+    auto identity   = makeIdentity<T>(mat.rows());
+    auto augment    = join(mat, identity);
+
+    for (auto diagIdx = size_type {0}; diagIdx < augment.rows(); ++diagIdx)
+    {
+        auto cRow = diagIdx;
+        auto cCol = diagIdx;
+        auto r    = findRowWithMaxElement(augment, cCol, cRow);
+        if (r == cRow)
+        {
+        }
+    }
+
     return {};
 }
 

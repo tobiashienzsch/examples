@@ -477,15 +477,28 @@ auto matrix_test() -> void
     joinB(0, 0) = T {1};
     joinB(1, 0) = T {1};
 
-    auto joined = math::join(joinA, joinB);
-    REQUIRE(joined.rows() == 2);
-    REQUIRE(joined.cols() == 3);
-    REQUIRE(joined(0, 0) == T {1});
-    REQUIRE(joined(1, 0) == T {1});
-    REQUIRE(joined(0, 1) == T {0});
-    REQUIRE(joined(1, 1) == T {0});
-    REQUIRE(joined(0, 2) == T {1});
-    REQUIRE(joined(1, 2) == T {1});
+    auto joinedA = math::join(joinA, joinB);
+    REQUIRE(joinedA.rows() == 2);
+    REQUIRE(joinedA.cols() == 3);
+    REQUIRE(joinedA(0, 0) == T {1});
+    REQUIRE(joinedA(1, 0) == T {1});
+    REQUIRE(joinedA(0, 1) == T {0});
+    REQUIRE(joinedA(1, 1) == T {0});
+    REQUIRE(joinedA(0, 2) == T {1});
+    REQUIRE(joinedA(1, 2) == T {1});
+
+    auto joinC  = math::Matrix<T> {2, 2};
+    joinA(0, 0) = T {1};
+    joinA(1, 0) = T {1};
+    joinA(0, 1) = T {0};
+    joinA(1, 1) = T {0};
+    auto joinD  = math::Matrix<T> {2, 2};
+    joinB(0, 0) = T {1};
+    joinB(1, 0) = T {1};
+
+    auto joinedB = math::join(joinC, joinD);
+    REQUIRE(joinedB.rows() == 2);
+    REQUIRE(joinedB.cols() == 4);
 
     try
     {
@@ -505,7 +518,7 @@ auto matrix_test() -> void
     identityA(0, 1) = T {0};
     identityA(1, 1) = T {1};
 
-    auto identityB  = math::makeIdentity<T>(3, 3);
+    auto identityB  = math::makeIdentity<T>(3);
     identityB(0, 0) = T {1};
     identityB(1, 0) = T {0};
     identityB(0, 1) = T {0};
@@ -524,16 +537,7 @@ auto matrix_test() -> void
         REQUIRE((std::strcmp(e.what(), msg) == 0));
     }
 
-    try
-    {
-        REQUIRE(math::makeIdentity<T>(3, 4).size());
-        REQUIRE(false);
-    }
-    catch (std::exception const& e)
-    {
-        auto const* msg = "matrix must be square";
-        REQUIRE((std::strcmp(e.what(), msg) == 0));
-    }
+    math::inverse(math::makeIdentity<T>(2));
 }
 
 auto main() -> int
