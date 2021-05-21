@@ -84,5 +84,5 @@
         "__locale": "cpp",
         "filesystem": "cpp"
     },
-    "python.pythonPath": "py_numba/venv/bin/python"
+    "python.pythonPath": "py_pyside6/venv/bin/python"
 }
