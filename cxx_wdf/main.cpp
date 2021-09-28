@@ -229,3 +229,5 @@ auto ideal_transformer(mc::CurrentSource<double>& Is, double in) -> double
     Is.incident(in);
     return Is.reflected();
 }
+
+auto main() -> int { return 0; }

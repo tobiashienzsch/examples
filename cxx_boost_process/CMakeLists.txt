@@ -12,10 +12,6 @@ endif()
 set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
 set(THREADS_PREFER_PTHREAD_FLAG TRUE)
 find_package(Threads REQUIRED)
-
-list (APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../cmake")
-include(CompilerWarnings)
-
 find_package(Boost 1.71 COMPONENTS filesystem  REQUIRED)
 
 add_executable(${PROJECT_NAME} src/main.cpp)

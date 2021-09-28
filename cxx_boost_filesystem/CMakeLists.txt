@@ -9,9 +9,6 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
     set(BUILD_SHARED_LIBS OFF)
 endif()    
 
-list (APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../cmake")
-include(CompilerWarnings)
-
 find_package(Boost 1.71 COMPONENTS filesystem REQUIRED)
 
 add_executable(${PROJECT_NAME} src/main.cpp)

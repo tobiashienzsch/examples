@@ -36,7 +36,7 @@ public:
 
     explicit Graph(std::initializer_list<value_type> ilist) : nodes_(ilist) { }
 
-    auto AddNode(std::uint32_t id, Node node) -> bool
+    auto add(std::uint32_t id, Node node) -> bool
     {
         if (idExists(id))
         {
@@ -47,51 +47,49 @@ public:
         return true;
     }
 
-    auto Connect(std::uint32_t source, std::uint32_t sink) -> void
+    auto connect(std::uint32_t source, std::uint32_t sink) -> void
     {
         edges_.emplace_back(Edge {source, sink});
         sortEdges();
     }
 
-    [[nodiscard]] auto GetNode(std::uint32_t id) -> Node&
+    [[nodiscard]] auto node(std::uint32_t id) -> Node&
     {
         auto sameID = [id](auto const& n) { return n.first == id; };
         return std::find_if(begin(nodes_), end(nodes_), sameID)->second;
     }
 
-    [[nodiscard]] auto GetNode(std::uint32_t id) const -> Node const&
+    [[nodiscard]] auto node(std::uint32_t id) const -> Node const&
     {
         auto sameID = [id](auto const& n) { return n.first == id; };
         return std::find_if(begin(nodes_), end(nodes_), sameID)->second;
     }
 
-    [[nodiscard]] auto NumNodes() const noexcept -> std::size_t
+    [[nodiscard]] auto size() const noexcept -> std::size_t
     {
         return nodes_.size();
     }
 
-    [[nodiscard]] auto GetInEdgesFor(std::uint32_t nodeID) const
-        -> std::vector<Edge>
+    [[nodiscard]] auto inEdges(std::uint32_t nodeID) const -> std::vector<Edge>
     {
         auto result = std::vector<Edge> {};
-        std::copy_if(
-            begin(edges_), end(edges_), std::back_inserter(result),
-            [nodeID](auto const& edge) { return edge.Sink == nodeID; });
+        std::copy_if(begin(edges_), end(edges_), std::back_inserter(result),
+                     [nodeID](auto const& edge)
+                     { return edge.Sink == nodeID; });
         return result;
     }
 
-    [[nodiscard]] auto GetOutEdgesFor(std::uint32_t nodeID) const
-        -> std::vector<Edge>
+    [[nodiscard]] auto outEdges(std::uint32_t nodeID) const -> std::vector<Edge>
     {
         auto result = std::vector<Edge> {};
-        std::copy_if(
-            begin(edges_), end(edges_), std::back_inserter(result),
-            [nodeID](auto const& edge) { return edge.Source == nodeID; });
+        std::copy_if(begin(edges_), end(edges_), std::back_inserter(result),
+                     [nodeID](auto const& edge)
+                     { return edge.Source == nodeID; });
         return result;
     }
 
     template<typename Func>
-    auto ForEachNode(Func func) const -> void
+    auto forEach(Func func) const -> void
     {
         for (auto const& node : nodes_)
         {
@@ -109,17 +107,15 @@ private:
     auto sortNodes() -> void
     {
         std::sort(begin(nodes_), end(nodes_),
-                  [](auto const& lhs, auto const& rhs) {
-                      return lhs.first < rhs.first;
-                  });
+                  [](auto const& lhs, auto const& rhs)
+                  { return lhs.first < rhs.first; });
     }
 
     auto sortEdges() -> void
     {
         std::sort(begin(edges_), end(edges_),
-                  [](auto const& lhs, auto const& rhs) {
-                      return lhs.Source < rhs.Source;
-                  });
+                  [](auto const& lhs, auto const& rhs)
+                  { return lhs.Source < rhs.Source; });
     }
 
     std::vector<value_type> nodes_;
@@ -131,7 +127,7 @@ private:
  * ordering we want. Instead of maintaining a stack of the nodes we see we
  * simply place them inside the ordering vector in reverse order for simplicity.
  */
-auto DepthFirstSearch(std::uint32_t orderIndex, std::uint32_t currentNodeID,
+auto depthFirstSearch(std::uint32_t orderIndex, std::uint32_t currentNodeID,
                       std::vector<bool>& visited,
                       std::vector<std::uint32_t>& ordering, Graph const& graph)
     -> std::uint32_t
@@ -139,13 +135,13 @@ auto DepthFirstSearch(std::uint32_t orderIndex, std::uint32_t currentNodeID,
 
     visited[currentNodeID] = true;
 
-    if (auto const& edges = graph.GetOutEdgesFor(currentNodeID); !edges.empty())
+    if (auto const& edges = graph.outEdges(currentNodeID); !edges.empty())
     {
         for (auto const& edge : edges)
         {
             if (!visited[edge.Sink])
             {
-                orderIndex = DepthFirstSearch(orderIndex, edge.Sink, visited,
+                orderIndex = depthFirstSearch(orderIndex, edge.Sink, visited,
                                               ordering, graph);
             }
         }
@@ -159,18 +155,19 @@ auto DepthFirstSearch(std::uint32_t orderIndex, std::uint32_t currentNodeID,
  * @brief Finds a topological ordering of the nodes in a Directed Acyclic Graph
  * (DAG). The input to this function is an adjacency list for a graph.
  */
-auto TopologicalSort(Graph const& graph) -> std::vector<std::uint32_t>
+auto topologicalSort(Graph const& graph) -> std::vector<std::uint32_t>
 {
-    auto const numNodes = graph.NumNodes();
-    auto ordering       = std::vector<std::uint32_t>(numNodes);
-    auto visited        = std::vector<bool>(numNodes);
+    auto const size = graph.size();
+    auto ordering   = std::vector<std::uint32_t>(size);
+    auto visited    = std::vector<bool>(size);
 
-    auto i = numNodes - 1;
-    for (std::uint32_t at = 0; at < numNodes; at++)
+    auto i = size - 1;
+    for (std::uint32_t at = 0; at < size; at++)
     {
         if (!visited[at])
         {
-            i = DepthFirstSearch(i, at, visited, ordering, graph);
+            i = depthFirstSearch(static_cast<std::uint32_t>(i), at, visited,
+                                 ordering, graph);
         }
     }
 
@@ -182,21 +179,21 @@ auto Test_TopologicalSort() -> bool
     auto graph = Graph {};
     for (std::uint32_t i = 0; i < 7; i++)
     {
-        graph.AddNode(i, Node {});
+        graph.add(i, Node {});
     }
 
-    graph.Connect(0, 1);
-    graph.Connect(0, 2);
-    graph.Connect(0, 5);
-    graph.Connect(1, 3);
-    graph.Connect(1, 2);
-    graph.Connect(2, 3);
-    graph.Connect(2, 4);
-    graph.Connect(3, 4);
-    graph.Connect(5, 4);
+    graph.connect(0, 1);
+    graph.connect(0, 2);
+    graph.connect(0, 5);
+    graph.connect(1, 3);
+    graph.connect(1, 2);
+    graph.connect(2, 3);
+    graph.connect(2, 4);
+    graph.connect(3, 4);
+    graph.connect(5, 4);
 
     auto const expected = std::array<std::uint32_t, 7> {6, 0, 5, 1, 2, 3, 4};
-    auto const ordering = TopologicalSort(graph);
+    auto const ordering = topologicalSort(graph);
     return std::equal(begin(ordering), end(ordering), begin(expected));
 }
 
@@ -205,15 +202,15 @@ class FindComponents
 public:
     explicit FindComponents(Graph const& graph)
         : graph_(graph)
-        , numNodes_(graph_.NumNodes())
+        , size_(static_cast<std::uint32_t>(graph_.size()))
         , count_(0)
-        , components_(numNodes_)
-        , visited_(numNodes_)
+        , components_(size_)
+        , visited_(size_)
     {
-        assert(components_.size() == numNodes_);
-        assert(visited_.size() == numNodes_);
+        assert(components_.size() == size_);
+        assert(visited_.size() == size_);
 
-        for (std::uint32_t i = 0; i < numNodes_; ++i)
+        for (std::uint32_t i = 0; i < size_; ++i)
         {
             if (!visited_[i])
             {
@@ -234,8 +231,7 @@ private:
         visited_[currentNode]    = true;
         components_[currentNode] = count_;
 
-        if (auto const& edges = graph_.GetOutEdgesFor(currentNode);
-            !edges.empty())
+        if (auto const& edges = graph_.outEdges(currentNode); !edges.empty())
         {
             for (auto const& edge : edges)
             {
@@ -248,7 +244,7 @@ private:
     }
 
     Graph const& graph_;
-    std::uint32_t numNodes_;
+    std::uint32_t size_;
     std::uint32_t count_;
     std::vector<std::uint32_t> components_;
     std::vector<bool> visited_;
@@ -275,21 +271,23 @@ auto main() -> int
         {6, Node {[](auto x) { return x; }}},
     };
 
-    graph.Connect(0, 1);
-    graph.Connect(1, 4);
-    graph.Connect(2, 3);
-    graph.Connect(3, 4);
-    graph.Connect(5, 6);
+    graph.connect(0, 1);
+    graph.connect(1, 4);
+    graph.connect(2, 3);
+    graph.connect(3, 4);
+    graph.connect(5, 6);
 
     std::cout << "Graph: \n";
-    graph.ForEachNode([&graph](auto const& node) {
-        std::cout << node.first << ": [";
-        for (auto edge : graph.GetOutEdgesFor(node.first))
+    graph.forEach(
+        [&graph](auto const& node)
         {
-            std::cout << edge.Sink << " ";
-        }
-        std::cout << "]\n";
-    });
+            std::cout << node.first << ": [";
+            for (auto edge : graph.outEdges(node.first))
+            {
+                std::cout << edge.Sink << " ";
+            }
+            std::cout << "]\n";
+        });
 
     auto const components = FindComponents(graph).Get();
     std::cout << "\nComponents: \n";
@@ -297,23 +295,22 @@ auto main() -> int
     std::copy(begin(components.second), end(components.second), stream);
     std::cout << '\n';
 
-    auto const ordering = TopologicalSort(graph);
+    auto const ordering = topologicalSort(graph);
     std::cout << "\nOrdering (TopologicalSort): \n";
     std::copy(begin(ordering), end(ordering), stream);
     std::cout << '\n';
 
     std::cout << "\nSimulation:\n";
     auto buffers = std::map<std::uint32_t, double> {};
-    graph.ForEachNode([&buffers](auto const& node) {
-        buffers.emplace(std::make_pair(node.first, 0.0));
-    });
+    graph.forEach([&buffers](auto const& node)
+                  { buffers.emplace(std::make_pair(node.first, 0.0)); });
 
     for (auto id : ordering)
     {
-        auto const& node  = graph.GetNode(id);
+        auto const& node  = graph.node(id);
         auto const input  = buffers.at(id);
         auto const output = node.Handler(input);
-        for (auto const& edge : graph.GetOutEdgesFor(id))
+        for (auto const& edge : graph.outEdges(id))
         {
             buffers.at(edge.Sink) += output;
         }

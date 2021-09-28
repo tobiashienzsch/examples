@@ -1,3 +1,4 @@
+#define _USE_MATH_DEFINES
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -14,16 +15,26 @@ constexpr T smallest_pow2(T n, T m = 1)
     return (m < n) ? smallest_pow2(n, m << 1) : m;
 }
 
-std::uint32_t count_bits(std::uint32_t i)
+std::uint32_t count_bits(std::uint32_t input)
 {
-    // GCC only!!!
-    return __builtin_popcount(i);
+    auto count = std::uint32_t {0};
+    while (input)
+    {
+        count = count + (input & std::uint32_t {1});
+        input = input >> std::uint32_t {1};
+    }
+    return count;
 }
 
-std::uint64_t count_bits(std::uint64_t i)
+std::uint64_t count_bits(std::uint64_t input)
 {
-    // GCC only!!!
-    return __builtin_popcountll(i);
+    auto count = std::uint64_t {0};
+    while (input)
+    {
+        count = count + (input & std::uint64_t {1});
+        input = input >> std::uint64_t {1};
+    }
+    return count;
 }
 
 template<typename T = std::uint32_t>
@@ -188,16 +199,18 @@ int main()
     std::uint32_t min_count = UINT32_MAX;
     std::size_t est_index   = 0;
     std::vector<std::uint32_t> corr(buff_size / 2);
-    bin.auto_correlate(min_period, [&corr, &max_count, &min_count,
-                                    &est_index](auto pos, auto count) {
-        corr[pos] = count;
-        max_count = std::max<std::uint32_t>(max_count, count);
-        if (static_cast<unsigned>(count) < min_count)
+    bin.auto_correlate(
+        min_period,
+        [&corr, &max_count, &min_count, &est_index](auto pos, auto count)
         {
-            min_count = count;
-            est_index = pos;
-        }
-    });
+            corr[pos] = count;
+            max_count = std::max<std::uint32_t>(max_count, count);
+            if (static_cast<unsigned>(count) < min_count)
+            {
+                min_count = count;
+                est_index = pos;
+            }
+        });
 
     ////////////////////////////////////////////////////////////////////////////
     // Handle harmonics

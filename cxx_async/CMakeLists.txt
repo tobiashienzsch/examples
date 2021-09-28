@@ -8,14 +8,14 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
     set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
     set(BUILD_SHARED_LIBS OFF)
     set(CMAKE_VERBOSE_MAKEFILE ON)
+    list (APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../cmake")
+    include(CompilerWarnings)
 endif()    
 
 set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
 set(THREADS_PREFER_PTHREAD_FLAG TRUE)
 find_package(Threads REQUIRED)
 
-list (APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../cmake")
-include(CompilerWarnings)
-
 add_executable(${PROJECT_NAME} main.cpp)
 target_link_libraries(${PROJECT_NAME} PRIVATE Threads::Threads th::CompilerWarnings)
+target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)
