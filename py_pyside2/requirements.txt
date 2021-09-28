@@ -1,0 +1,7 @@
+numpy
+matplotlib
+scipy
+numba
+PySide2
+pyaudio
+autopep8
