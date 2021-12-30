@@ -2,6 +2,7 @@
 
 #include <cmath>
 #include <cstdint>
+#include <string_view>
 #include <type_traits>
 
 namespace etl
@@ -12,120 +13,294 @@ using std::is_signed_v;
 using std::is_trivially_copyable_v;
 using std::is_trivially_destructible_v;
 using std::uint64_t;
+using std::underlying_type_t;
 
-namespace detail
+template<typename... T>
+using enable_if_integral_t = enable_if_t<(is_integral_v<T> && ...)>;
+
+struct uint128_t
 {
+    enum struct upper_t : uint64_t
+    {
+    };
+    enum struct lower_t : uint64_t
+    {
+    };
 
-template<typename T>
-using enable_if_integral_t = etl::enable_if_t<etl::is_integral_v<T>>;
-
-template<typename T, typename U>
-using enable_if_both_integral_t
-    = etl::enable_if_t<etl::is_integral_v<T> && etl::is_integral_v<U>>;
-
-struct uint128
-{
-    uint128() = default;
+    uint128_t() noexcept = default;
 
     template<typename T, typename = enable_if_integral_t<T>>
-    constexpr uint128(T rhs);
+    constexpr uint128_t(T val) noexcept;
 
-    template<typename T, typename U, typename = enable_if_both_integral_t<T, U>>
-    constexpr uint128(T upper, U lower);
+    constexpr uint128_t(upper_t upper, lower_t lower) noexcept;
 
-    [[nodiscard]] constexpr auto upper() const noexcept -> etl::uint64_t;
-    [[nodiscard]] constexpr auto lower() const noexcept -> etl::uint64_t;
+    // constexpr uint128_t(std::string_view str) noexcept
+    // {
+    //     auto val = uint128_t {};
+    //     for (int i = 0; str[i] != '\0'; ++i) {
+    //         val = val * 10 + str[i] - '0';
+    //     }
+    //     (*this) = val;
+    // }
+
+    constexpr auto upper() const noexcept -> etl::uint64_t;
+    constexpr auto lower() const noexcept -> etl::uint64_t;
 
 private:
-#if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
-    etl::uint64_t hi_;
-    etl::uint64_t lo_;
-#elif __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
-    etl::uint64_t lo_;
-    etl::uint64_t hi_;
-#else
-#error "unsupported byte order"
-#endif
+    etl::uint64_t _parts[2] {};
 };
 
-[[nodiscard]] constexpr auto operator==(uint128 l, uint128 r) noexcept -> bool;
+constexpr auto operator==(uint128_t l, uint128_t r) noexcept -> bool;
+constexpr auto operator!=(uint128_t l, uint128_t r) noexcept -> bool;
+
+constexpr auto operator^(uint128_t l, uint128_t r) noexcept -> uint128_t;
+constexpr auto operator|(uint128_t l, uint128_t r) noexcept -> uint128_t;
+constexpr auto operator&(uint128_t l, uint128_t r) noexcept -> uint128_t;
+constexpr auto operator~(uint128_t v) noexcept -> uint128_t;
+
+constexpr auto operator+(uint128_t v) noexcept -> uint128_t;
+constexpr auto operator+(uint128_t l, uint128_t r) noexcept -> uint128_t;
+constexpr auto operator-(uint128_t l, uint128_t r) noexcept -> uint128_t;
+constexpr auto operator+=(uint128_t& l, uint128_t r) noexcept -> uint128_t&;
+constexpr auto operator-=(uint128_t& l, uint128_t r) noexcept -> uint128_t&;
+constexpr auto operator++(uint128_t& val) noexcept -> uint128_t&;
+constexpr auto operator--(uint128_t& val) noexcept -> uint128_t&;
+constexpr auto operator++(uint128_t& val, int /*ignore*/) noexcept -> uint128_t;
+constexpr auto operator--(uint128_t& val, int /*ignore*/) noexcept -> uint128_t;
 
 template<typename T, typename = enable_if_integral_t<T>>
-[[nodiscard]] constexpr auto operator==(uint128 l, T r) noexcept -> bool;
+constexpr auto operator==(uint128_t l, T r) noexcept -> bool;
+template<typename T, typename = enable_if_integral_t<T>>
+constexpr auto operator==(T l, uint128_t r) noexcept -> bool;
 
 template<typename T, typename = enable_if_integral_t<T>>
-[[nodiscard]] constexpr auto operator==(T l, uint128 r) noexcept -> bool;
-
-[[nodiscard]] constexpr auto operator!=(uint128 l, uint128 r) noexcept -> bool;
+constexpr auto operator!=(uint128_t l, T r) noexcept -> bool;
+template<typename T, typename = enable_if_integral_t<T>>
+constexpr auto operator!=(T l, uint128_t r) noexcept -> bool;
 
 template<typename T, typename = enable_if_integral_t<T>>
-[[nodiscard]] constexpr auto operator!=(uint128 l, T r) noexcept -> bool;
+constexpr auto operator^(uint128_t l, T r) noexcept -> uint128_t;
+template<typename T, typename = enable_if_integral_t<T>>
+constexpr auto operator^(T l, uint128_t r) noexcept -> uint128_t;
 
 template<typename T, typename = enable_if_integral_t<T>>
-[[nodiscard]] constexpr auto operator!=(T l, uint128 r) noexcept -> bool;
-
-//////////////////////// IMPL ////////////////////////////
+constexpr auto operator|(uint128_t l, T r) noexcept -> uint128_t;
 template<typename T, typename = enable_if_integral_t<T>>
-constexpr uint128::uint128(T rhs)
+constexpr auto operator|(T l, uint128_t r) noexcept -> uint128_t;
+
+template<typename T, typename = enable_if_integral_t<T>>
+constexpr auto operator&(uint128_t l, T r) noexcept -> uint128_t;
+template<typename T, typename = enable_if_integral_t<T>>
+constexpr auto operator&(T l, uint128_t r) noexcept -> uint128_t;
+
+///////////////////////////////////////////////////////////
+template<typename T, typename>
+inline constexpr uint128_t::uint128_t(T val) noexcept
+    : uint128_t {upper_t {0}, lower_t {underlying_type_t<lower_t>(val)}}
+{
+}
+
+inline constexpr uint128_t::uint128_t(upper_t upper, lower_t lower) noexcept
 #if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
-    : hi_(0), lo_(rhs)
+    : _parts
+{
+    underlying_type_t<upper_t>(upper), underlying_type_t<lower_t>(lower)
+}
 #elif __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
-    : lo_(0), hi_(rhs)
+    : _parts
+{
+    underlying_type_t<lower_t>(lower), underlying_type_t<upper_t>(upper)
+}
 #else
 #error "unsupported byte order"
 #endif
 {
 }
 
-template<typename T, typename U, typename = enable_if_both_integral_t<T, U>>
-constexpr uint128::uint128(T hi, U lo)
+inline constexpr auto uint128_t::upper() const noexcept -> etl::uint64_t
+{
 #if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
-    : hi_(upper), lo_(lo)
+    return _parts[0];
 #elif __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
-    : lo_(lo), hi_(upper)
+    return _parts[1];
 #else
 #error "unsupported byte order"
 #endif
-{
 }
 
-constexpr auto uint128::upper() const noexcept -> etl::uint64_t { return hi_; }
-constexpr auto uint128::lower() const noexcept -> etl::uint64_t { return lo_; }
+inline constexpr auto uint128_t::lower() const noexcept -> etl::uint64_t
+{
+#if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+    return _parts[1];
+#elif __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+    return _parts[0];
+#else
+#error "unsupported byte order"
+#endif
+}
 
-constexpr auto operator==(uint128 l, uint128 r) noexcept -> bool
+inline constexpr auto operator==(uint128_t l, uint128_t r) noexcept -> bool
 {
     return l.lower() == r.lower() && l.upper() == r.upper();
 }
-template<typename T, typename = enable_if_integral_t<T>>
-constexpr auto operator==(uint128 l, T r) noexcept -> bool
+
+template<typename T, typename>
+inline constexpr auto operator==(uint128_t l, T r) noexcept -> bool
 {
     return !l.upper() && (l.lower() == r);
 }
 
-template<typename T, typename = enable_if_integral_t<T>>
-constexpr auto operator==(T l, uint128 r) noexcept -> bool
+template<typename T, typename>
+inline constexpr auto operator==(T l, uint128_t r) noexcept -> bool
 {
     return !r.upper() && (r.lower() == l);
 }
 
-constexpr auto operator!=(uint128 l, uint128 r) noexcept -> bool
-{
-    return !(l == r);
-}
-template<typename T, typename = enable_if_integral_t<T>>
-constexpr auto operator!=(uint128 l, T r) noexcept -> bool
+inline constexpr auto operator!=(uint128_t l, uint128_t r) noexcept -> bool
 {
     return !(l == r);
 }
 
-template<typename T, typename = enable_if_integral_t<T>>
-constexpr auto operator!=(T l, uint128 r) noexcept -> bool
+template<typename T, typename>
+inline constexpr auto operator!=(uint128_t l, T r) noexcept -> bool
 {
     return !(l == r);
 }
 
-}  // namespace detail
+template<typename T, typename>
+inline constexpr auto operator!=(T l, uint128_t r) noexcept -> bool
+{
+    return !(l == r);
+}
 
-using uint128_t = detail::uint128;
+inline constexpr auto operator^(uint128_t l, uint128_t r) noexcept -> uint128_t
+{
+    return {
+        uint128_t::upper_t {l.upper() ^ r.upper()},
+        uint128_t::lower_t {l.lower() ^ r.lower()},
+    };
+}
+
+template<typename T, typename>
+inline constexpr auto operator^(uint128_t l, T r) noexcept -> uint128_t
+{
+    return l ^ uint128_t { r };
+}
+
+template<typename T, typename>
+inline constexpr auto operator^(T l, uint128_t r) noexcept -> uint128_t
+{
+    return uint128_t {l} ^ r;
+}
+
+inline constexpr auto operator|(uint128_t l, uint128_t r) noexcept -> uint128_t
+{
+    return {
+        uint128_t::upper_t {l.upper() | r.upper()},
+        uint128_t::lower_t {l.lower() | r.lower()},
+    };
+}
+
+template<typename T, typename>
+inline constexpr auto operator|(uint128_t l, T r) noexcept -> uint128_t
+{
+    return l | uint128_t {r};
+}
+
+template<typename T, typename>
+inline constexpr auto operator|(T l, uint128_t r) noexcept -> uint128_t
+{
+    return uint128_t {l} | r;
+}
+
+inline constexpr auto operator&(uint128_t l, uint128_t r) noexcept -> uint128_t
+{
+    return {
+        uint128_t::upper_t {l.upper() & r.upper()},
+        uint128_t::lower_t {l.lower() & r.lower()},
+    };
+}
+
+template<typename T, typename>
+inline constexpr auto operator&(uint128_t l, T r) noexcept -> uint128_t
+{
+    return l & uint128_t {r};
+}
+
+template<typename T, typename>
+inline constexpr auto operator&(T l, uint128_t r) noexcept -> uint128_t
+{
+    return uint128_t {l} & r;
+}
+
+inline constexpr auto operator+(uint128_t v) noexcept -> uint128_t { return v; }
+
+inline constexpr auto operator~(uint128_t v) noexcept -> uint128_t
+{
+    return {
+        uint128_t::upper_t {~v.upper()},
+        uint128_t::lower_t {~v.lower()},
+    };
+}
+
+inline constexpr auto operator+(uint128_t l, uint128_t r) noexcept -> uint128_t
+{
+    auto upper = l.upper() + ((l.lower() + r.lower()) < l.lower());
+    auto lower = l.lower() + r.lower();
+    return {
+        uint128_t::upper_t {upper},
+        uint128_t::lower_t {lower},
+    };
+}
+
+inline constexpr auto operator+=(uint128_t& l, uint128_t r) noexcept
+    -> uint128_t&
+{
+    l = l + r;
+    return l;
+}
+
+inline constexpr auto operator-(uint128_t l, uint128_t r) noexcept -> uint128_t
+{
+    auto upper = l.upper() - r.upper() - ((l.lower() - r.lower()) > l.lower());
+    auto lower = l.lower() - r.lower();
+    return {
+        uint128_t::upper_t {upper},
+        uint128_t::lower_t {lower},
+    };
+}
+
+inline constexpr auto operator-=(uint128_t& l, uint128_t r) noexcept
+    -> uint128_t&
+{
+    l = l - r;
+    return l;
+}
+
+inline constexpr auto operator++(uint128_t& val) noexcept -> uint128_t&
+{
+    val += 1;
+    return val;
+}
+
+inline constexpr auto operator--(uint128_t& val) noexcept -> uint128_t&
+{
+    val -= 1;
+    return val;
+}
+
+inline constexpr auto operator++(uint128_t& val, int /*ignore*/) noexcept
+    -> uint128_t
+{
+    val += 1;
+    return val;
+}
+
+inline constexpr auto operator--(uint128_t& val, int /*ignore*/) noexcept
+    -> uint128_t
+{
+    val -= 1;
+    return val;
+}
 
 }  // namespace etl

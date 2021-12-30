@@ -2,18 +2,20 @@
 
 #include <cassert>
 
-auto equal(etl::uint128_t l, etl::uint128_t r) noexcept -> bool
-{
-    return l != r;
-}
-
 constexpr auto test() -> bool
 {
-    assert(etl::is_trivially_destructible_v<etl::uint128_t>);
-    assert(etl::is_trivially_copyable_v<etl::uint128_t>);
+    using etl::uint128_t;
 
-    assert(etl::uint128_t {143U} == etl::uint128_t {143U});
-    assert(!(etl::uint128_t {142U} == etl::uint128_t {143U}));
+    assert(etl::is_trivially_destructible_v<uint128_t>);
+    assert(etl::is_trivially_copyable_v<uint128_t>);
+
+    assert(uint128_t {0} == 0U);
+    assert(uint128_t {1} == 1U);
+    assert(uint128_t {2} == uint128_t {2});
+    assert(uint128_t {1} == uint128_t {1} + uint128_t {0});
+    assert(uint128_t {3} == uint128_t {1} + uint128_t {2});
+    assert(uint128_t {1} == uint128_t {1} - uint128_t {0});
+    assert(uint128_t {1} == uint128_t {2} - uint128_t {1});
     return true;
 }
 
