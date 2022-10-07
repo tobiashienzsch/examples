@@ -1,5 +1,10 @@
 {
   "files.associations": {
-    "string": "cpp"
+    "*.cmake.in": "cmake",
+    "string": "cpp",
+    "chrono": "cpp",
+    "future": "cpp",
+    "system_error": "cpp",
+    "xlocale": "cpp"
   }
 }
