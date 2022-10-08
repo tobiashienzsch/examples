@@ -4,6 +4,7 @@ cmake-build-*
 *.o
 *.gcno
 *.gcda
+*.exe
 
 venv
 .env
