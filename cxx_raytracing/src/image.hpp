@@ -4,12 +4,13 @@
 
 #include <vector>
 
+namespace mc
+{
+
 struct Image
 {
-    Image() = default;
     Image(int w, int h);
 
-    [[nodiscard]] auto size() const noexcept -> int;
     [[nodiscard]] auto width() const noexcept -> int;
     [[nodiscard]] auto height() const noexcept -> int;
 
@@ -25,13 +26,17 @@ private:
     std::vector<PixelRGB> _pixels;
 };
 
-[[nodiscard]] auto begin(Image& i) -> PixelRGB*;
-[[nodiscard]] auto end(Image& i) -> PixelRGB*;
+[[nodiscard]] auto size(Image const& img) noexcept -> int;
 
-[[nodiscard]] auto begin(Image const& i) -> PixelRGB const*;
-[[nodiscard]] auto end(Image const& i) -> PixelRGB const*;
+[[nodiscard]] auto begin(Image& img) noexcept -> PixelRGB*;
+[[nodiscard]] auto end(Image& img) noexcept -> PixelRGB*;
+
+[[nodiscard]] auto begin(Image const& img) noexcept -> PixelRGB const*;
+[[nodiscard]] auto end(Image const& img) noexcept -> PixelRGB const*;
 
 auto writeToFile(Image const& img, char const* path) -> void;
 
-[[nodiscard]] auto makeGradient() -> Image;
-[[nodiscard]] auto makeSolidFill(PixelRGB color) -> Image;
+[[nodiscard]] auto makeImageWithGradient() -> Image;
+[[nodiscard]] auto makeImageWithSolidFill(PixelRGB color) -> Image;
+
+}  // namespace mc

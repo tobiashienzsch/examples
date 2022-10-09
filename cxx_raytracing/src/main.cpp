@@ -2,10 +2,12 @@
 
 auto main(int, char** argv) -> int
 {
-    // writeToFile(makeGradient(), argv[1]);
+    using namespace mc;
+
+    // writeToFile(makeImageWithGradient(), argv[1]);
 
     auto const color = PixelRGB::fromFloat(0.1F, 0.1F, 0.1F);
-    auto const img   = makeSolidFill(color);
+    auto const img   = makeImageWithSolidFill(color);
     writeToFile(img, argv[1]);
 
     return EXIT_SUCCESS;

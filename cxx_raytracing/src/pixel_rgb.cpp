@@ -2,6 +2,9 @@
 
 #include <algorithm>
 
+namespace mc
+{
+
 auto PixelRGB::fromFloat(float r, float g, float b) noexcept -> PixelRGB
 {
     return {
@@ -10,3 +13,5 @@ auto PixelRGB::fromFloat(float r, float g, float b) noexcept -> PixelRGB
         static_cast<uint8_t>(std::clamp(b * 255.0F, 0.0F, 255.0F)),
     };
 }
+
+}  // namespace mc

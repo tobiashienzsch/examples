@@ -1,13 +1,16 @@
 #include "image.hpp"
 
+#include <iterator>
 #include <stdexcept>
+
+namespace mc
+{
 
 Image::Image(int w, int h)
     : _width {w}, _height {h}, _pixels(static_cast<size_t>(w * h))
 {
 }
 
-auto Image::size() const noexcept -> int { return _width * _height; }
 auto Image::width() const noexcept -> int { return _width; }
 auto Image::height() const noexcept -> int { return _height; }
 
@@ -24,11 +27,25 @@ auto Image::operator()(int x, int y) const -> PixelRGB const&
 auto Image::data() noexcept -> PixelRGB* { return _pixels.data(); }
 auto Image::data() const noexcept -> PixelRGB const* { return _pixels.data(); }
 
-auto begin(Image& i) -> PixelRGB* { return i.data(); }
-auto end(Image& i) -> PixelRGB* { return i.data() + i.size(); }
+auto size(Image const& img) noexcept -> int
+{
+    return img.width() * img.height();
+}
 
-auto begin(Image const& i) -> PixelRGB const* { return i.data(); }
-auto end(Image const& i) -> PixelRGB const* { return i.data() + i.size(); }
+auto begin(Image& img) noexcept -> PixelRGB* { return std::data(img); }
+auto end(Image& img) noexcept -> PixelRGB*
+{
+    return std::data(img) + size(img);
+}
+
+auto begin(Image const& img) noexcept -> PixelRGB const*
+{
+    return std::data(img);
+}
+auto end(Image const& img) noexcept -> PixelRGB const*
+{
+    return std::data(img) + size(img);
+}
 
 auto writeToFile(Image const& img, char const* path) -> void
 {
@@ -56,7 +73,7 @@ auto writeToFile(Image const& img, char const* path) -> void
     std::fclose(file);
 }
 
-auto makeGradient() -> Image
+auto makeImageWithGradient() -> Image
 {
     auto img          = Image {200, 200};
     auto const width  = img.width();
@@ -76,9 +93,11 @@ auto makeGradient() -> Image
     return img;
 }
 
-auto makeSolidFill(PixelRGB color) -> Image
+auto makeImageWithSolidFill(PixelRGB color) -> Image
 {
     auto img = Image {200, 200};
     std::fill(begin(img), end(img), color);
     return img;
 }
+
+}  // namespace mc

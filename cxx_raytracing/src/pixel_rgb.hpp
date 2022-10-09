@@ -2,6 +2,9 @@
 
 #include <cstdint>
 
+namespace mc
+{
+
 struct PixelRGB
 {
     static auto fromFloat(float r, float g, float b) noexcept -> PixelRGB;
@@ -10,3 +13,5 @@ struct PixelRGB
     uint8_t green;
     uint8_t blue;
 };
+
+}  // namespace mc
