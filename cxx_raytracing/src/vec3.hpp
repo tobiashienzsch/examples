@@ -157,8 +157,7 @@ constexpr auto length(Vec3<T> vec) noexcept -> T
 template<typename T>
 constexpr auto makeUnit(Vec3<T> vec) noexcept -> Vec3<T>
 {
-    auto const k = T(1) / length(vec);
-    return vec / k;
+    return vec / length(vec);
 }
 
 }  // namespace mc

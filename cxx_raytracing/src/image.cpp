@@ -47,7 +47,7 @@ auto writeToFile(Image const& img, char const* path) -> void
     std::fprintf(file, "%d %d\n", img.width(), img.height());
     std::fprintf(file, "255\n");
 
-    for (auto y{img.height() - 1}; y >= 0; --y) {
+    for (auto y{0}; y < img.height(); ++y) {
         for (auto x{0}; x < img.width(); ++x) {
             auto const r = img(x, y).red;
             auto const g = img(x, y).green;

@@ -54,24 +54,6 @@ CompactNamespaces: false
 Cpp11BracedListStyle: true
 DisableFormat: false
 FixNamespaceComments: true
-IncludeBlocks: Regroup
-IncludeCategories:
-  - Regex: "^<mc/core/config.hpp"
-    Priority: 2
-  - Regex: "^<mc/audio/[[:alnum:].]+"
-    Priority: 3
-  - Regex: "^<mc/music/[[:alnum:].]+"
-    Priority: 4
-  - Regex: "^<mc/core[[:alnum:].]+"
-    Priority: 5
-  - Regex: "^<mc/[[:alnum:].]+"
-    Priority: 6
-  - Regex: "^<(boost|fmt|catch2)/"
-    Priority: 7
-  - Regex: "^<[[:alnum:].]+>"
-    Priority: 8
-  - Regex: "^<(catch2)/"
-    Priority: 9
 IndentCaseLabels: true
 IndentWidth: 4
 IndentWrappedFunctionNames: false

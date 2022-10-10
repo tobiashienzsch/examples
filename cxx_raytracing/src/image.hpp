@@ -4,7 +4,6 @@
 
 #include "pixel_rgb.hpp"
 
-
 namespace mc {
 
 struct Image

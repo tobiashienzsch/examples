@@ -33,7 +33,7 @@ static auto color(Ray<float> const& ray) -> PixelRGB
 
 [[nodiscard]] static auto makeImageWithSphere() -> Image
 {
-    auto img = Image{600, 300};
+    auto img = Image{200, 100};
 
     auto const lowerLeft  = Vec3<float>{-2.0F, -1.0F, -1.0F};
     auto const horizontal = Vec3<float>{4.0F, 0.0F, 0.0F};
