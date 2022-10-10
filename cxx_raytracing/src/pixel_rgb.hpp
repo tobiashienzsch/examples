@@ -2,8 +2,7 @@
 
 #include <cstdint>
 
-namespace mc
-{
+namespace mc {
 
 struct PixelRGB
 {

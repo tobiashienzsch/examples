@@ -1,11 +1,11 @@
 #pragma once
 
-#include "pixel_rgb.hpp"
-
 #include <vector>
 
-namespace mc
-{
+#include "pixel_rgb.hpp"
+
+
+namespace mc {
 
 struct Image
 {

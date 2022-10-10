@@ -2,8 +2,7 @@
 
 #include <cmath>
 
-namespace mc
-{
+namespace mc {
 
 template<typename T>
 struct Vec3
@@ -14,12 +13,10 @@ struct Vec3
 };
 
 template<typename T>
-[[nodiscard]] constexpr auto operator==(Vec3<T> lhs, Vec3<T> rhs) noexcept
-    -> bool;
+[[nodiscard]] constexpr auto operator==(Vec3<T> lhs, Vec3<T> rhs) noexcept -> bool;
 
 template<typename T>
-[[nodiscard]] constexpr auto operator!=(Vec3<T> lhs, Vec3<T> rhs) noexcept
-    -> bool;
+[[nodiscard]] constexpr auto operator!=(Vec3<T> lhs, Vec3<T> rhs) noexcept -> bool;
 
 template<typename T>
 [[nodiscard]] constexpr auto operator+(Vec3<T> vec) noexcept -> Vec3<T>;
@@ -28,20 +25,16 @@ template<typename T>
 [[nodiscard]] constexpr auto operator-(Vec3<T> vec) noexcept -> Vec3<T>;
 
 template<typename T>
-[[nodiscard]] constexpr auto operator+(Vec3<T> lhs, Vec3<T> rhs) noexcept
-    -> Vec3<T>;
+[[nodiscard]] constexpr auto operator+(Vec3<T> lhs, Vec3<T> rhs) noexcept -> Vec3<T>;
 
 template<typename T>
-[[nodiscard]] constexpr auto operator-(Vec3<T> lhs, Vec3<T> rhs) noexcept
-    -> Vec3<T>;
+[[nodiscard]] constexpr auto operator-(Vec3<T> lhs, Vec3<T> rhs) noexcept -> Vec3<T>;
 
 template<typename T>
-[[nodiscard]] constexpr auto operator*(Vec3<T> lhs, Vec3<T> rhs) noexcept
-    -> Vec3<T>;
+[[nodiscard]] constexpr auto operator*(Vec3<T> lhs, Vec3<T> rhs) noexcept -> Vec3<T>;
 
 template<typename T>
-[[nodiscard]] constexpr auto operator/(Vec3<T> lhs, Vec3<T> rhs) noexcept
-    -> Vec3<T>;
+[[nodiscard]] constexpr auto operator/(Vec3<T> lhs, Vec3<T> rhs) noexcept -> Vec3<T>;
 
 template<typename T>
 [[nodiscard]] constexpr auto operator*(Vec3<T> lhs, T rhs) noexcept -> Vec3<T>;
@@ -60,8 +53,7 @@ template<typename T>
 
 }  // namespace mc
 
-namespace mc
-{
+namespace mc {
 template<typename T>
 constexpr auto operator==(Vec3<T> lhs, Vec3<T> rhs) noexcept -> bool
 {
@@ -119,6 +111,7 @@ constexpr auto operator*(Vec3<T> lhs, Vec3<T> rhs) noexcept -> Vec3<T>
         .z = lhs.z * rhs.z,
     };
 }
+
 template<typename T>
 constexpr auto operator/(Vec3<T> lhs, Vec3<T> rhs) noexcept -> Vec3<T>
 {

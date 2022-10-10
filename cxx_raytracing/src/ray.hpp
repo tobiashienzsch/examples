@@ -2,8 +2,7 @@
 
 #include "vec3.hpp"
 
-namespace mc
-{
+namespace mc {
 
 template<typename T>
 struct Ray
@@ -13,13 +12,11 @@ struct Ray
 };
 
 template<typename T>
-[[nodiscard]] constexpr auto pointAt(Ray<T> const& ray, T t) noexcept
-    -> Vec3<T>;
+[[nodiscard]] constexpr auto pointAt(Ray<T> const& ray, T t) noexcept -> Vec3<T>;
 
 }  // namespace mc
 
-namespace mc
-{
+namespace mc {
 
 template<typename T>
 constexpr auto pointAt(Ray<T> const& ray, T t) noexcept -> Vec3<T>

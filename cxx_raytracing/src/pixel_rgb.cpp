@@ -2,8 +2,7 @@
 
 #include <algorithm>
 
-namespace mc
-{
+namespace mc {
 
 auto PixelRGB::fromFloat(float r, float g, float b) noexcept -> PixelRGB
 {

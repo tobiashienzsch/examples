@@ -2,8 +2,7 @@
 
 #include "vec3.hpp"
 
-namespace mc
-{
+namespace mc {
 
 template<typename T>
 struct Sphere
