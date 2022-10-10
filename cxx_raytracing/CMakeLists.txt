@@ -16,6 +16,12 @@ target_sources(cxx_raytracing
         "src/image.hpp"
         "src/pixel_rgb.cpp"
         "src/pixel_rgb.hpp"
+        "src/ray.cpp"
+        "src/ray.hpp"
+        "src/sphere.cpp"
+        "src/sphere.hpp"
+        "src/vec3.cpp"
+        "src/vec3.hpp"
 )
 
 target_compile_definitions(cxx_raytracing
