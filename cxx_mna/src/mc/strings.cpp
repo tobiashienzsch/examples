@@ -1,6 +1,6 @@
 #include "strings.hpp"
 
-namespace mc {
+namespace mc::strings {
 // trim from start (in place)
 auto ltrim(std::string& s) -> void
 {
@@ -21,4 +21,4 @@ auto trim(std::string& s) -> void
     ltrim(s);
     rtrim(s);
 }
-}  // namespace mc
+}  // namespace mc::strings

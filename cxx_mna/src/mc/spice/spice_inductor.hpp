@@ -7,6 +7,8 @@ namespace mc {
 
 struct SpiceInductor
 {
+    static constexpr auto token = 'L';
+
     std::string name;
     int positive{};
     int negative{};

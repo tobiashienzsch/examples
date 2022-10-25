@@ -6,6 +6,8 @@
 namespace mc {
 struct SpiceResistor
 {
+    static constexpr auto token = 'R';
+
     std::string name;
     int positive{};
     int negative{};

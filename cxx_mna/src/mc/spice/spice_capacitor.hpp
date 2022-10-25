@@ -7,6 +7,8 @@ namespace mc {
 
 struct SpiceCapacitor
 {
+    static constexpr auto token = 'C';
+
     std::string name;
     int positive{};
     int negative{};

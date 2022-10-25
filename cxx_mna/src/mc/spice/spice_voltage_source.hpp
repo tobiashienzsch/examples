@@ -6,6 +6,8 @@
 namespace mc {
 struct SpiceVoltageSource
 {
+    static constexpr auto token = 'V';
+
     enum struct Type
     {
         dc,
