@@ -11,4 +11,7 @@ auto rtrim(std::string& s) -> void;
 
 // trim from both ends (in place)
 auto trim(std::string& s) -> void;
+
+auto toUpper(std::string& str) -> void;
+
 }  // namespace mc::strings

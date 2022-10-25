@@ -1,5 +1,7 @@
 #include "spice_inductor.hpp"
 
+#include <mc/spice/detail/parse_spice_number.hpp>
+
 #include <format>
 #include <sstream>
 
@@ -7,23 +9,23 @@ namespace mc {
 
 auto parseSpiceInductor(std::string const& src) -> SpiceInductor
 {
-    auto r  = SpiceInductor{};
-    auto in = std::istringstream{src};
-    in >> r.name;
-    in >> r.positive;
-    in >> r.negative;
-    in >> r.farad;
-    return r;
+    auto in           = std::istringstream{src};
+    auto inductor     = SpiceInductor{};
+    inductor.name     = readFromStream<std::string>(in);
+    inductor.positive = readFromStream<std::string>(in);
+    inductor.negative = readFromStream<std::string>(in);
+    inductor.henry    = detail::parseSpiceNumber(readFromStream<std::string>(in));
+    return inductor;
 }
 
 auto operator<<(std::ostream& out, SpiceInductor const& i) -> std::ostream&
 {
     out << std::format(
-        "SpiceInductor(name: {}, pos: {}, neg: {}, farad: {})",
+        "SpiceInductor(name: {}, pos: {}, neg: {}, henry: {})",
         i.name,
         i.positive,
         i.negative,
-        i.farad
+        i.henry
     );
     return out;
 }

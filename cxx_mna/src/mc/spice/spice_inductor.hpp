@@ -10,9 +10,9 @@ struct SpiceInductor
     static constexpr auto token = 'L';
 
     std::string name;
-    int positive{};
-    int negative{};
-    double farad{};
+    std::string positive{};
+    std::string negative{};
+    double henry{};
 };
 
 auto parseSpiceInductor(std::string const& src) -> SpiceInductor;

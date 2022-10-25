@@ -15,8 +15,8 @@ struct SpiceVoltageSource
     };
 
     std::string name;
-    int positive{};
-    int negative{};
+    std::string positive{};
+    std::string negative{};
     Type type{};
     double voltage{};
 };

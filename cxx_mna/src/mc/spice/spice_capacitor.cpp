@@ -1,18 +1,20 @@
 #include "spice_capacitor.hpp"
 
+#include <mc/spice/detail/parse_spice_number.hpp>
+
 #include <format>
 #include <sstream>
 
 namespace mc {
 auto parseSpiceCapacitor(std::string const& src) -> SpiceCapacitor
 {
-    auto r  = SpiceCapacitor{};
-    auto in = std::istringstream{src};
-    in >> r.name;
-    in >> r.positive;
-    in >> r.negative;
-    in >> r.farad;
-    return r;
+    auto in            = std::istringstream{src};
+    auto capacitor     = SpiceCapacitor{};
+    capacitor.name     = readFromStream<std::string>(in);
+    capacitor.positive = readFromStream<std::string>(in);
+    capacitor.negative = readFromStream<std::string>(in);
+    capacitor.farad    = detail::parseSpiceNumber(readFromStream<std::string>(in));
+    return capacitor;
 }
 
 auto operator<<(std::ostream& out, SpiceCapacitor const& c) -> std::ostream&

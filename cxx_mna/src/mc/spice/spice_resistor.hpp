@@ -9,8 +9,8 @@ struct SpiceResistor
     static constexpr auto token = 'R';
 
     std::string name;
-    int positive{};
-    int negative{};
+    std::string positive{};
+    std::string negative{};
     double ohm{};
 };
 

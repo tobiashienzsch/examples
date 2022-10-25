@@ -10,8 +10,8 @@ struct SpiceCapacitor
     static constexpr auto token = 'C';
 
     std::string name;
-    int positive{};
-    int negative{};
+    std::string positive{};
+    std::string negative{};
     double farad{};
 };
 

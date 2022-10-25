@@ -1,0 +1,6 @@
+* C:\Developer\tobiashienzsch\examples\cxx_mna\test_data\voltage_divider.asc
+V1 N001 0 1
+R1 N001 N002 10k
+R2 N002 0 20k
+.backanno
+.end
