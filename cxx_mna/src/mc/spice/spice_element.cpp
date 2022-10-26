@@ -1,6 +1,6 @@
 #include "spice_element.hpp"
 
-#include <format>
+#include <fmt/format.h>
 #include <sstream>
 
 namespace mc {

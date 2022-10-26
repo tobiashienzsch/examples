@@ -7,11 +7,12 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 include(mc_conan)
 
 find_package(Eigen3)
+find_package(fmt)
 
 add_executable(${PROJECT_NAME} src/main.cpp)
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_23)
 target_include_directories(${PROJECT_NAME} PRIVATE src)
-target_link_libraries(${PROJECT_NAME} PRIVATE Eigen3::Eigen)
+target_link_libraries(${PROJECT_NAME} PRIVATE Eigen3::Eigen fmt::fmt)
 target_sources(${PROJECT_NAME}
     PRIVATE
         src/mc/strings.cpp
