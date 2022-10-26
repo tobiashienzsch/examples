@@ -1,6 +1,7 @@
 #include "spice_resistor.hpp"
 
 #include <mc/spice/detail/parse_spice_number.hpp>
+#include <mc/stream.hpp>
 
 #include <format>
 #include <sstream>
@@ -20,7 +21,7 @@ auto parseSpiceResistor(std::string const& src) -> SpiceResistor
 auto operator<<(std::ostream& out, SpiceResistor const& r) -> std::ostream&
 {
     out << std::format(
-        "SpiceResistor(name: {}, pos: {}, neg: {}, ohm: {})",
+        "Resistor(name: {}, pos: {}, neg: {}, ohm: {})",
         r.name,
         r.positive,
         r.negative,

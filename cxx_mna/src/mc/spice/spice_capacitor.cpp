@@ -1,6 +1,7 @@
 #include "spice_capacitor.hpp"
 
 #include <mc/spice/detail/parse_spice_number.hpp>
+#include <mc/stream.hpp>
 
 #include <format>
 #include <sstream>
@@ -20,7 +21,7 @@ auto parseSpiceCapacitor(std::string const& src) -> SpiceCapacitor
 auto operator<<(std::ostream& out, SpiceCapacitor const& c) -> std::ostream&
 {
     out << std::format(
-        "SpiceCapacitor(name: {}, pos: {}, neg: {}, farad: {})",
+        "Capacitor(name: {}, pos: {}, neg: {}, farad: {})",
         c.name,
         c.positive,
         c.negative,
