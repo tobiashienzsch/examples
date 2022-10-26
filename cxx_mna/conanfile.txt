@@ -1,0 +1,11 @@
+[requires]
+eigen/3.4.0
+
+[options]
+
+[generators]
+cmake_find_package
+markdown
+
+[imports]
+., license* -> ./licenses @ folder=True, ignore_case=True
