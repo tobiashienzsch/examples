@@ -3,7 +3,7 @@
 #include <mc/spice/detail/parse_spice_number.hpp>
 #include <mc/stream.hpp>
 
-#include <format>
+#include <fmt/format.h>
 #include <sstream>
 
 namespace mc {
@@ -20,7 +20,7 @@ auto parseSpiceVoltageSource(std::string const& src) -> SpiceVoltageSource
 
 auto operator<<(std::ostream& out, SpiceVoltageSource const& r) -> std::ostream&
 {
-    out << std::format(
+    out << fmt::format(
         "VoltageSource(name: {}, pos: {}, neg: {}, voltage: {})",
         r.name,
         r.positive,

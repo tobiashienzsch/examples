@@ -1,5 +1,6 @@
 [requires]
 eigen/3.4.0
+fmt/9.1.0
 
 [options]
 

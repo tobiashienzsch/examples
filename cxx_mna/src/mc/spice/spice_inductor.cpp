@@ -3,7 +3,7 @@
 #include <mc/spice/detail/parse_spice_number.hpp>
 #include <mc/stream.hpp>
 
-#include <format>
+#include <fmt/format.h>
 #include <sstream>
 
 namespace mc {
@@ -21,7 +21,7 @@ auto parseSpiceInductor(std::string const& src) -> SpiceInductor
 
 auto operator<<(std::ostream& out, SpiceInductor const& i) -> std::ostream&
 {
-    out << std::format(
+    out << fmt::format(
         "Inductor(name: {}, pos: {}, neg: {}, henry: {})",
         i.name,
         i.positive,
