@@ -1,11 +1,13 @@
 #include <cstdio>
 #include <cstdlib>
 
-#if __has_include(<SYCL/sycl.hpp>)
-#include <SYCL/sycl.hpp>
-#else
-#include <CL/sycl.hpp>
-#endif
+// #if __has_include(<SYCL/sycl.hpp>)
+// #include <SYCL/sycl.hpp>
+// #else
+// #include <CL/sycl.hpp>
+// #endif
+
+#include <sycl/sycl.hpp>
 
 auto toString(sycl::info::device_type type) -> std::string
 {
