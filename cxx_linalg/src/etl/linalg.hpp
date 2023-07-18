@@ -133,11 +133,12 @@ constexpr auto swap_elements(InOutObj1 x, InOutObj2 y) -> void
 {
     ETL_PRECONDITION(x.extents() == y.extents());
 
+    using size_type = detail::common_size_type_t<InOutObj1, InOutObj2>;
+
     if constexpr (InOutObj1::rank() == 1) {
-        for (decltype(x.extent(0)) i{0}; i < x.extent(0); ++i) { std::swap(x[i], y[i]); }
+        for (size_type i{0}; i < x.extent(0); ++i) { std::swap(x[i], y[i]); }
     } else {
         static_assert(InOutObj1::rank() == 2);
-        using size_type = detail::common_size_type_t<InOutObj1, InOutObj2>;
         for (size_type i{0}; i < x.extent(0); ++i) {
             for (size_type j{0}; j < x.extent(1); ++j) { std::swap(x[i, j], y[i, j]); }
         }
@@ -147,7 +148,7 @@ constexpr auto swap_elements(InOutObj1 x, InOutObj2 y) -> void
 template<typename Scalar, detail::inout_object InOutObj>
 constexpr auto scale(Scalar alpha, InOutObj x) -> void
 {
-    using size_type = decltype(x.extent(0));
+    using size_type = typename InOutObj::size_type;
 
     if constexpr (InOutObj::rank() == 1) {
         for (size_type i{0}; i < x.extent(0); ++i) { x[i] = x[i] * alpha; }
@@ -165,12 +166,14 @@ constexpr auto copy(InObj x, OutObj y) -> void
 {
     ETL_PRECONDITION(x.extents() == y.extents());
 
+    using size_type = detail::common_size_type_t<InObj, OutObj>;
+
     if constexpr (InObj::rank() == 1) {
-        for (decltype(x.extent(0)) i{0}; i < x.extent(0); ++i) { y[i] = x[i]; }
+        for (size_type i{0}; i < x.extent(0); ++i) { y[i] = x[i]; }
     } else {
         static_assert(InObj::rank() == 2);
-        for (decltype(x.extent(0)) i{0}; i < x.extent(0); ++i) {
-            for (decltype(x.extent(0)) j{0}; j < x.extent(1); ++j) { y[i, j] = x[i, j]; }
+        for (size_type i{0}; i < x.extent(0); ++i) {
+            for (size_type j{0}; j < x.extent(1); ++j) { y[i, j] = x[i, j]; }
         }
     }
 }
@@ -181,14 +184,14 @@ constexpr auto add(InObj1 x, InObj2 y, OutObj z) -> void
 {
     ETL_PRECONDITION(x.extents() == y.extents());
 
+    using size_type = detail::common_size_type_t<InObj1, InObj2, OutObj>;
+
     if constexpr (OutObj::rank() == 1) {
-        for (decltype(x.extent(0)) row{0}; row < x.extent(0); ++row) {
-            z[row] = x[row] + y[row];
-        }
+        for (size_type row{0}; row < x.extent(0); ++row) { z[row] = x[row] + y[row]; }
     } else {
         static_assert(OutObj::rank() == 2);
-        for (decltype(x.extent(0)) row{0}; row < x.extent(0); ++row) {
-            for (decltype(x.extent(0)) col{0}; col < x.extent(1); ++col) {
+        for (size_type row{0}; row < x.extent(0); ++row) {
+            for (size_type col{0}; col < x.extent(1); ++col) {
                 z[row, col] = x[row, col] + y[row, col];
             }
         }
@@ -199,7 +202,7 @@ template<detail::in_vector InVec, typename Scalar>
 constexpr auto vector_two_norm(InVec v, Scalar init) noexcept -> Scalar
 {
     auto sum = init;
-    for (decltype(v.extent(0)) i{0}; i < v.extent(0); ++i) {
+    for (typename InVec::size_type i{0}; i < v.extent(0); ++i) {
         auto const val = v[i];
         sum += (val * val);
     }
@@ -216,7 +219,7 @@ template<detail::in_vector InVec, typename Scalar>
 constexpr auto vector_abs_sum(InVec v, Scalar init) noexcept -> Scalar
 {
     auto sum = init;
-    for (decltype(v.extent(0)) i{0}; i < v.extent(0); ++i) { sum += std::abs(v[i]); }
+    for (typename InVec::size_type i{0}; i < v.extent(0); ++i) { sum += std::abs(v[i]); }
     return sum;
 }
 
@@ -232,7 +235,7 @@ constexpr auto idx_abs_max(InVec v) -> typename InVec::size_type
     auto idx   = std::numeric_limits<typename InVec::size_type>::max();
     auto max_v = std::numeric_limits<typename InVec::value_type>::min();
 
-    for (decltype(v.extent(0)) i{0}; i < v.extent(0); ++i) {
+    for (typename InVec::size_type i{0}; i < v.extent(0); ++i) {
         if (auto const val = std::abs(v[i]); val > max_v) {
             idx   = i;
             max_v = val;
@@ -246,8 +249,8 @@ template<detail::in_matrix InMat, typename Scalar>
 constexpr auto matrix_frob_norm(InMat A, Scalar init) noexcept -> Scalar
 {
     auto result = init;
-    for (decltype(A.extent(0)) row{0}; row < A.extent(0); ++row) {
-        for (decltype(A.extent(0)) col{0}; col < A.extent(1); ++col) {
+    for (typename InMat::size_type row{0}; row < A.extent(0); ++row) {
+        for (typename InMat::size_type col{0}; col < A.extent(1); ++col) {
             result += std::abs(A[row, col]);
         }
     }
