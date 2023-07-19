@@ -6,5 +6,6 @@ function(linalg_add_test _target)
   target_link_libraries(${_target}_test PRIVATE etl)
 endfunction()
 
+linalg_add_test(concepts)
 linalg_add_test(scale)
 linalg_add_test(swap_elements)
