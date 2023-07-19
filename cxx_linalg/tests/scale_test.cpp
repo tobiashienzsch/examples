@@ -20,5 +20,11 @@ auto main() -> int
     assert(vec[2] == 4.0F);
     assert(vec[3] == 6.0F);
 
+    auto scaled = etl::linalg::scaled(2.0F, vec);
+    assert(scaled[0] == 0.0F);
+    assert(scaled[1] == 4.0F);
+    assert(scaled[2] == 8.0F);
+    assert(scaled[3] == 12.0F);
+
     return EXIT_SUCCESS;
 }

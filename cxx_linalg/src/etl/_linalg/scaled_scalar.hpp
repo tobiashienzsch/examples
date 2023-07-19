@@ -22,7 +22,10 @@ struct scaled_scalar
         = decltype(std::declval<ScalingFactor>() * ReferenceValue(std::declval<Reference>()));
 
     explicit scaled_scalar(ScalingFactor const& scaling_factor, Reference const& reference)
-        : proxy_reference{reference}
+        : proxy_reference<
+            Reference,
+            ReferenceValue,
+            scaled_scalar<ScalingFactor, Reference, ReferenceValue>>{reference}
         , _scaling_factor{scaling_factor}
     {}
 

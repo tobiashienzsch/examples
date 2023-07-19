@@ -34,14 +34,14 @@ struct proxy_reference : proxy_reference_base
     }
 
     template<typename Rhs>
-        requires(std::is_base_of_v<proxy_reference_base, Rhs>)
+        requires(not std::is_base_of_v<proxy_reference_base, Rhs>)
     constexpr friend auto operator+(derived_type lhs, Rhs rhs)
     {
         return value_type(lhs) + rhs;
     }
 
     template<typename Lhs>
-        requires(std::is_base_of_v<proxy_reference_base, Lhs>)
+        requires(not std::is_base_of_v<proxy_reference_base, Lhs>)
     constexpr friend auto operator+(Lhs lhs, derived_type rhs)
     {
         return lhs + value_type(rhs);
@@ -56,14 +56,14 @@ struct proxy_reference : proxy_reference_base
     }
 
     template<typename Rhs>
-        requires(std::is_base_of_v<proxy_reference_base, Rhs>)
+        requires(not std::is_base_of_v<proxy_reference_base, Rhs>)
     constexpr friend auto operator-(derived_type lhs, Rhs rhs)
     {
         return value_type(lhs) - rhs;
     }
 
     template<typename Lhs>
-        requires(std::is_base_of_v<proxy_reference_base, Lhs>)
+        requires(not std::is_base_of_v<proxy_reference_base, Lhs>)
     constexpr friend auto operator-(Lhs lhs, derived_type rhs)
     {
         return lhs - value_type(rhs);
@@ -78,14 +78,14 @@ struct proxy_reference : proxy_reference_base
     }
 
     template<typename Rhs>
-        requires(std::is_base_of_v<proxy_reference_base, Rhs>)
+        requires(not std::is_base_of_v<proxy_reference_base, Rhs>)
     constexpr friend auto operator*(derived_type lhs, Rhs rhs)
     {
         return value_type(lhs) * rhs;
     }
 
     template<typename Lhs>
-        requires(std::is_base_of_v<proxy_reference_base, Lhs>)
+        requires(not std::is_base_of_v<proxy_reference_base, Lhs>)
     constexpr friend auto operator*(Lhs lhs, derived_type rhs)
     {
         return lhs * value_type(rhs);
@@ -100,14 +100,14 @@ struct proxy_reference : proxy_reference_base
     }
 
     template<typename Rhs>
-        requires(std::is_base_of_v<proxy_reference_base, Rhs>)
+        requires(not std::is_base_of_v<proxy_reference_base, Rhs>)
     constexpr friend auto operator/(derived_type lhs, Rhs rhs)
     {
         return value_type(lhs) / rhs;
     }
 
     template<typename Lhs>
-        requires(std::is_base_of_v<proxy_reference_base, Lhs>)
+        requires(not std::is_base_of_v<proxy_reference_base, Lhs>)
     constexpr friend auto operator/(Lhs lhs, derived_type rhs)
     {
         return lhs / value_type(rhs);
