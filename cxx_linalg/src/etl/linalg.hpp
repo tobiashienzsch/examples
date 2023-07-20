@@ -14,6 +14,7 @@
 #include <etl/_linalg/blas2_matrix_vector_product.hpp>
 #include <etl/_linalg/conjugated.hpp>
 #include <etl/_linalg/conjugated_scalar.hpp>
+#include <etl/_linalg/layout_transpose.hpp>
 #include <etl/_linalg/proxy_reference.hpp>
 #include <etl/_linalg/scaled_scalar.hpp>
 #include <etl/_linalg/tags.hpp>
