@@ -7,5 +7,6 @@ function(linalg_add_test _target)
 endfunction()
 
 linalg_add_test(concepts)
+linalg_add_test(conjugated)
 linalg_add_test(scale)
 linalg_add_test(swap_elements)

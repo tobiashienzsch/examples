@@ -31,9 +31,9 @@ public:
 
     constexpr explicit conjugated_scalar(Reference reference) : base_type{reference} {}
 
-    static constexpr auto to_value(Reference reference)
+    [[nodiscard]] static constexpr auto to_value(Reference reference)
     {
-        return conj_if_needed(ReferenceValue(std::declval<Reference>()));
+        return conj_if_needed(ReferenceValue(reference));
     }
 };
 
